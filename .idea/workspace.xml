@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b343f3b9-8bdf-4f12-bdd2-fc59d365e483" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/script/views.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,10 +35,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/script/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="448">
-              <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+            <state relative-caret-position="290">
+              <caret line="20" column="32" lean-forward="true" selection-start-line="19" selection-end-line="20" selection-end-column="32" />
               <folding>
-                <element signature="e#0#61#0" expanded="true" />
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -45,8 +47,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/script/serializers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="5" column="43" lean-forward="true" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
+            <state relative-caret-position="114">
+              <caret line="6" selection-start-line="6" selection-end-line="6" />
               <folding>
                 <element signature="e#0#38#0" expanded="true" />
               </folding>
@@ -57,7 +59,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scriptslide/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
+            <state relative-caret-position="324">
               <caret line="173" column="3" lean-forward="true" selection-start-line="168" selection-start-column="1" selection-end-line="173" selection-end-column="3" />
             </state>
           </provider>
@@ -103,8 +105,9 @@
       <find>ACCOUNT</find>
       <find>back</find>
       <find>allauth</find>
-      <find>auth</find>
       <find>isadmin</find>
+      <find>auth</find>
+      <find>status</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -115,18 +118,18 @@
       <list>
         <option value="$PROJECT_DIR$/script/admin.py" />
         <option value="$PROJECT_DIR$/scriptslide/urls.py" />
-        <option value="$PROJECT_DIR$/script/models.py" />
         <option value="$PROJECT_DIR$/script/urls.py" />
-        <option value="$PROJECT_DIR$/script/serializers.py" />
-        <option value="$PROJECT_DIR$/script/views.py" />
         <option value="$PROJECT_DIR$/scriptslide/settings.py" />
+        <option value="$PROJECT_DIR$/script/serializers.py" />
+        <option value="$PROJECT_DIR$/script/models.py" />
+        <option value="$PROJECT_DIR$/script/views.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="433" />
+    <option name="x" value="555" />
     <option name="y" value="23" />
-    <option name="width" value="1246" />
+    <option name="width" value="1140" />
     <option name="height" value="970" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -225,19 +228,19 @@
       <workItem from="1562223549114" duration="72415000" />
       <workItem from="1562779045859" duration="339000" />
       <workItem from="1562779419581" duration="2466000" />
-      <workItem from="1562782083277" duration="19533000" />
+      <workItem from="1562782083277" duration="29472000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="94753000" />
+    <option name="totallyTimeSpent" value="104692000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="433" y="23" width="1246" height="970" extended-state="0" />
+    <frame x="555" y="23" width="1140" height="970" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" sideWeight="0.50147927" side_tool="true" weight="0.21495327" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4985207" visible="true" weight="0.15282393" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4985207" visible="true" weight="0.16757742" />
       <window_info id="Structure" order="2" sideWeight="0.50147927" side_tool="true" weight="0.21495327" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -312,29 +315,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/script/serializers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" column="43" lean-forward="true" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
-          <folding>
-            <element signature="e#0#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scriptslide/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="173" column="3" lean-forward="true" selection-start-line="168" selection-start-column="1" selection-end-line="173" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scriptslide/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="212">
           <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
           <folding>
             <element signature="e#636#668#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scriptslide/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="173" column="3" lean-forward="true" selection-start-line="168" selection-start-column="1" selection-end-line="173" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/script/serializers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+          <folding>
+            <element signature="e#0#38#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -351,10 +354,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/script/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
-          <caret line="49" column="29" lean-forward="true" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+        <state relative-caret-position="290">
+          <caret line="20" column="32" lean-forward="true" selection-start-line="19" selection-end-line="20" selection-end-column="32" />
           <folding>
-            <element signature="e#0#61#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
