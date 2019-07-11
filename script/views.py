@@ -1,13 +1,8 @@
 from rest_framework.authentication import TokenAuthentication
-
 from script.models import SpeechScript
-from script.serializers import SpeechScriptSerializer
-from django.http import HttpResponse, JsonResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
-from rest_framework import viewsets
+from script.serializers import SpeechScriptSerializer, UserSerializer
+from django.http import JsonResponse, HttpResponse
+from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 import random, string
@@ -16,26 +11,32 @@ from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 
 
-def CreateRandom(request) :   #using token
-    username = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))+'@scriptsslide.com'
-    password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-    user_instance = User.objects.create_user(username=username, password=password)
-    user_instance.save()
-    login(request, user_instance)
+@csrf_exempt
+def CreateRandom(request) :
+    if request.method == "GET":
+        return HttpResponse("Method(메소드)는 GET을 허용하지 않습니다")
 
-    token = Token.objects.create(user=user_instance)
-    token.save()
-    return JsonResponse({"token_key" : token.key,
-                         "token_user" : token.user_id})
+    if request.method == "POST":
+        username = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))+"@scriptsslide.com"
+        password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
+
+        user_instance = User.objects.create_user(username=username, password=password)
+        user_instance.save()
+
+        login(request, user_instance)
+
+        token = Token.objects.create(user=user_instance)
+        token.save()
+        return JsonResponse({"token_key": token.key,
+                             "token_user": token.user_id})
 
 
 class SpeechScriptViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
     queryset = SpeechScript.objects.all()
     serializer_class = SpeechScriptSerializer
-
 
     @csrf_exempt
     def get_queryset(self):
@@ -48,8 +49,11 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user',)
 
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAdminUser,)
 
-
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 

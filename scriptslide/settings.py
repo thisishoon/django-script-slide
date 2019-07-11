@@ -164,15 +164,19 @@ JWT_ALGORITHM: JWT 암호화에 사용되는 알고리즘을 지정합니다.
 JWT_ALLOW_REFRESH: JWT 토큰을 갱신할 수 있게 할지 여부를 결정합니다.
 JWT_EXPIRATION_DELTA: JWT 토큰의 유효 기간을 설정합니다.
 JWT_REFRESH_EXPIRATION_DELTA: JWT 토큰 갱신의 유효기간 입니다.
-'''
+
 
 REST_USE_JWT = True     #login시 JWT 이용
-ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_USERNAME_REQUIRED = True  #우선은 USERNAME으로만 로그인
-
-SITE_ID = 1             # localhost에서 rest auth 사용 시 DB 위치 명시
-
 
 SESSION_COOKIE_AGE = 12096000          #20주동안 세션 저장
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  #브라우저가 닫혀도 세션 저장
 SESSION_SAVE_EVERY_REQUEST = True       #세션이 날라올 떄 마다 갱신
+'''
+
+
+TOKEN_EXPIRED_AFTER_SECONDS = 60*60*24*30*12 #1년
+
+
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_USERNAME_REQUIRED = True  #우선은 USERNAME으로만 로그인
+SITE_ID = 1             #  rest auth 사용 시 DB 위치 명시localhost에서
