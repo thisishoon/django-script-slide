@@ -6,8 +6,7 @@ router = DefaultRouter()
 router.register('scripts', views.SpeechScriptViewSet)
 router.register('users', views.UserViewSet)
 
-
 urlpatterns = [
     path('', include(router.urls)),
-    path('create/', views.CreateRandom),
+    path('create/', views.CreateGuestUser),
 ]

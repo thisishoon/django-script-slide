@@ -14,6 +14,6 @@ class SpeechScript(models.Model): #SpeechScript 변경
         ordering = ['-created_at']
 
     def __str__(self):
-        return "[{}]  {}".format(self.user_id, self.title)
+        return "[{}]  {}".format(self.user.id, self.title)
 
 

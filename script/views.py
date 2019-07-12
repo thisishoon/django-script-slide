@@ -14,13 +14,11 @@ from rest_framework.decorators import detail_route, list_route
 
 
 @csrf_exempt
-def CreateRandom(request):
+def CreateGuestUser(request):
     if request.method == "GET":
-        return HttpResponse("Method(메소드)는 GET을 허용하지 않습니다")
-
+        return HttpResponse("Not allow GET Method", status=400)
     if request.method == "POST":
-        username = ''.join(
-            random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
+        username = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
         password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
 
         user_instance = User.objects.create_user(username=username, password=password)
@@ -40,7 +38,7 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
     queryset = SpeechScript.objects.all()
     serializer_class = SpeechScriptSerializer
 
-    @csrf_exempt
+    #@csrf_exempt
     def get_queryset(self):  # token으로부터 해당 user의 data만 출력
         user = self.request.user
         if user.is_superuser:
