@@ -17,28 +17,29 @@ from rest_framework.decorators import detail_route, list_route
 def CreateGuestUser(request):
     if request.method == "GET":
         return HttpResponse("Not allow GET Method", status=400)
+
     if request.method == "POST":
         username = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
-        password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
+        password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
         user_instance = User.objects.create_user(username=username, password=password)
         user_instance.save()
-
-        login(request, user_instance)
-
-        token = Token.objects.create(user=user_instance)
-        token.save()
-        return JsonResponse({"token_key": token.key})  # token은 key와 user(username을 출력)를 필드로 가진다
+        if user_instance.is_authenticated:
+            login(request, user_instance)
+            token = Token.objects.create(user=user_instance)
+            token.save()
+            return JsonResponse({"token_key": token.key})  # token은 key와 user(username을 출력)를 필드로 가진다
+        else:
+            return HttpResponse(status=500)
 
 
 class SpeechScriptViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated, )
+    authentication_classes = (TokenAuthentication, )
 
     queryset = SpeechScript.objects.all()
     serializer_class = SpeechScriptSerializer
 
-    #@csrf_exempt
     def get_queryset(self):  # token으로부터 해당 user의 data만 출력
         user = self.request.user
         if user.is_superuser:
@@ -47,20 +48,22 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
             return SpeechScript.objects.filter(user=user)
 
     def create(self, request, **kwargs):  # token으로부터 해당 user의 정보를 파악하고 생성
-        #request.user는 User객체의 username값을 가져오고 request.user.id는 User의 id값을 가져온다!
-        serializer = SpeechScriptSerializer(data={"title":request.data["title"], "content":request.data["content"],
-                                                  "user":request.user.id})
+        # request.user는 User객체의 username값을 가져오고 request.user.id는 User의 id값을 가져온다!
+        serializer = SpeechScriptSerializer(data={"title": request.data["title"], "content": request.data["content"],
+                                                  "user": request.user.id})
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('user', )
+    filter_fields = ('user',)
 
 
-class UserViewSet(viewsets.ModelViewSet):  # Admin에게만 보임
+class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
