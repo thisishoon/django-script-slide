@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'script',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
@@ -49,6 +48,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'drf_yasg',
     'corsheaders',
+    'channels',
+    'script',
+    'control',
+
 
 ]
 
@@ -186,3 +189,15 @@ TOKEN_EXPIRED_AFTER_SECONDS = 60*60*24*30*12 #1년
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_USERNAME_REQUIRED = True  #우선은 USERNAME으로만 로그인
 SITE_ID = 1             #  rest auth 사용 시 DB 위치 명시localhost에서
+
+
+
+ASGI_APPLICATION = 'scriptslide.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
