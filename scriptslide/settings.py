@@ -28,12 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    # ALB HEALTH IP
     '15.164.212.235',
-    '172.31.47.251',
-    'scriptslide.com',
-    'api.scriptslide.com',
-    '.amazon.com',
+    '.amazonaws.com',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
