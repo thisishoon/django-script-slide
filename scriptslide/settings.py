@@ -25,8 +25,18 @@ SECRET_KEY = 'qjvif0w)2)q(_v9g+s1%fyc5@&!jjcmh8*3vl$hc2_4f1#oh0w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127,0,0,1',
+    # ALB HEALTH IP
+    '15.164.212.235',
+    '172.31.47.251',
+    'scriptslide.com',
+    'api.scriptslide.com'
+]
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -65,9 +75,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'scriptslide.urls'
 
@@ -182,22 +189,21 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  #브라우저가 닫혀도 세션 저�
 SESSION_SAVE_EVERY_REQUEST = True       #세션이 날라올 떄 마다 갱신
 '''
 
-
 TOKEN_EXPIRED_AFTER_SECONDS = 60*60*24*30*12 #1년
-
 
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_USERNAME_REQUIRED = True  #우선은 USERNAME으로만 로그인
 SITE_ID = 1             #  rest auth 사용 시 DB 위치 명시localhost에서
 
 
-
 ASGI_APPLICATION = 'scriptslide.routing.application'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],
         },
+        #'group_expiry': 86400,
     },
 }
