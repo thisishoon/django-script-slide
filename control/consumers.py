@@ -5,14 +5,15 @@ from script.models import SpeechScript
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    current_line = 0
+
 
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+        self.current_line = 0
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
-        content_instance = SpeechScript.objects.get(id=self.room_group_name).content.split('.')
-        self.max_line = len(content_instance)
+        self.content_instance = SpeechScript.objects.get(id=self.room_group_name).content.split('.')
+        self.max_line = len(self.content_instance)
 
 
     async def connect(self):
@@ -34,6 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -69,6 +71,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_channel_name': self.channel_name
                 }
             )
+        else:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'custom_message',
+                    'message': text_data_json['message'],
+                    'sender_channel_name': self.channel_name
+                }
+            )
 
     async def notification_message(self, event):
         message = event['message']
@@ -84,4 +95,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({  # json으로 변환
                 'message': {'current_line': message}
+            }))
+
+    async def custom_message(self, event):
+        message = event['message']
+        if self.channel_name != event['sender_channel_name']:
+            await self.send(text_data=json.dumps({  # json으로 변환
+                'message':  message
             }))

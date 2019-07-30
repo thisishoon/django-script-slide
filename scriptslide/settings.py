@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '15.164.212.235',
+    '.scriptslide.com',
     '.amazonaws.com',
 ]
 
@@ -199,6 +199,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
+            #"hosts": [('127.0.0.1', 6379)],
             "hosts": [('127.0.0.1', 6379)],
         },
         #'group_expiry': 86400,
