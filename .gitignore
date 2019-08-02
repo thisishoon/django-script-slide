@@ -3,6 +3,7 @@
 __pycache__
 venv/
 db.sqlite3
-/static
+dump.rdb
+static/
 .DS_Store
 .idea/

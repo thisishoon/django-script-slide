@@ -9,4 +9,5 @@ router.register('users', views.UserViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('create/', views.CreateGuestUser),
+    path('health-check/', views.HealthCheck),
 ]

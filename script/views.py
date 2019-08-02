@@ -19,7 +19,8 @@ def CreateGuestUser(request):
         return HttpResponse("Not allow GET Method", status=400)
 
     if request.method == "POST":
-        username = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
+        username = ''.join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
         password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
         user_instance = User.objects.create_user(username=username, password=password)
@@ -34,8 +35,8 @@ def CreateGuestUser(request):
 
 
 class SpeechScriptViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, )
-    authentication_classes = (TokenAuthentication, )
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
 
     queryset = SpeechScript.objects.all()
     serializer_class = SpeechScriptSerializer
@@ -56,9 +57,6 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user',)
 
@@ -67,6 +65,10 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+def HealthCheck(request):
+    return HttpResponse(status=200)
 
 
 ''' 
