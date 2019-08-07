@@ -1,108 +1,106 @@
 # chat/consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
-import json
 from script.models import SpeechScript
+from rest_framework.authtoken.models import Token
+from scriptslide.settings import CHANNEL_LAYERS
+import json
+import time
+from collections import OrderedDict
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
 
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-        self.current_line = 0
-        self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
-        self.content_instance = SpeechScript.objects.get(id=self.room_group_name).content.split('.')
-        self.max_line = len(self.content_instance)
-
     async def connect(self):
+
+        '''
+        print(self.scope['user'])
+        temp= text_data_json['message']['token']
+        print(temp)
+        token= Token.objects.get(key=temp)
+        self.scope['user']=token.user
+        print(self.scope['user'])
+        if self.speech_script_instance.user == token.user:
+        print('ok')
+        '''
+
+        self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
+        self.current_line = 0
+        self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
         await self.channel_layer.group_add(
             self.room_group_name,  # 그룹 이름 = 방 이름
             self.channel_name  # 클라이언트의 고유 채널 이름
         )
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'notification_message',
-                'message': 'enter',
-                'sender_channel_name': self.channel_name
-            }
-        )
         # 웹소켓에서 연결을 받아들임
         await self.accept()
-        print(self.scope)
-        print(self.channel_name)
-
-
 
     async def disconnect(self, close_code):
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'notification_message',
-                'message': 'exit',
-                'sender_channel_name': self.channel_name
-            }
-        )
-        # 그룹을 떠남
-
+        #그룹을 떠남
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
+
 
     # 받는 역할
     async def receive(self, text_data):
 
         text_data_json = json.loads(text_data)  # dictionary로 변환
 
-        if 'manual_control' in text_data_json['message']:
-            self.current_line += int(text_data_json['message']['manual_control'])
-            if self.current_line < 0:
-                self.current_line = 0
-            elif self.current_line > self.max_line:
-                self.current_line = self.max_line
-            message = self.current_line
-
-            # Send message to room group
+        if 'notification' in text_data_json['message']['event']:
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'manual_control_message',
-                    'message': message,
-                    'sender_channel_name': self.channel_name
-                }
-            )
-
-        else:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'custom_message',
+                    'type': 'notification_message',
                     'message': text_data_json['message'],
                     'sender_channel_name': self.channel_name
                 }
             )
+            if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
+                self.start = time.time()
+                self.temp = []
+                self.previous = 0
+                self.next = 0
+                self.file_data = OrderedDict()
+                self.file_data["speech_script_title"] = self.speech_script_instance.title
+
+            elif 'mobile' in text_data_json['message']['user_category'] and 'exit' in text_data_json['message']['value']:
+                self.file_data['log'] = self.temp
+                self.file_data['sum_of_previous'] = self.previous
+                self.file_data['sum_of_next'] = self.next
+                self.file_data['sum_of_button'] = self.previous + self.next
+                self.file_data["sum_of_runtime"] = time.time() - self.start
+
+                with open("usertest_log/"+self.speech_script_instance.title + ".json", 'w', encoding="utf-8") as make_file:
+                    json.dump(self.file_data, make_file, ensure_ascii=False, indent='\t')
+
+        elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'button_message',
+                    'message': text_data_json['message'],
+                    'sender_channel_name': self.channel_name
+                }
+            )
+
+            if text_data_json['message']['value'] > 0:
+                self.temp.append("next")
+                self.next += 1
+
+            elif text_data_json['message']['value'] < 0:
+                self.temp.append("previous")
+                self.previous += 1
 
     async def notification_message(self, event):
         message = event['message']
         # Send message to WebSocket
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({  # json으로 변환
-                'message': {'notification': message}
+                'message': message
             }))
 
-    async def manual_control_message(self, event):
-        message = event['message']
-        # Send message to WebSocket
-        if self.channel_name != event['sender_channel_name']:
-            await self.send(text_data=json.dumps({  # json으로 변환
-                'message': {'current_line': message}
-            }))
-
-    async def custom_message(self, event):
+    async def button_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({  # json으로 변환

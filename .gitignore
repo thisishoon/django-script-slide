@@ -7,3 +7,4 @@ dump.rdb
 static/
 .DS_Store
 .idea/
+usertest_log/
