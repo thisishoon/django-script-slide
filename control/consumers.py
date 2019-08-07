@@ -57,21 +57,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
+                if CHANNEL_LAYERS.get("mobile_"+self.room_group_name) is None:
+                    CHANNEL_LAYERS.__setitem__("mobile_"+self.room_group_name, 1)
+                    print("*****아무도없는데 mobile이 들어왔다")
+                else:
+                    await self.close()
+                    print("*******누가 있는데 들어왔다 강제로 나가라")
+
                 self.start = time.time()
                 self.temp = []
                 self.previous = 0
                 self.next = 0
                 self.file_data = OrderedDict()
+                self.day = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
                 self.file_data["speech_script_title"] = self.speech_script_instance.title
 
             elif 'mobile' in text_data_json['message']['user_category'] and 'exit' in text_data_json['message']['value']:
+                CHANNEL_LAYERS.__delitem__("mobile_"+self.room_group_name)
+
                 self.file_data['log'] = self.temp
                 self.file_data['sum_of_previous'] = self.previous
                 self.file_data['sum_of_next'] = self.next
                 self.file_data['sum_of_button'] = self.previous + self.next
                 self.file_data["sum_of_runtime"] = time.time() - self.start
-
-                with open("usertest_log/"+self.speech_script_instance.title + ".json", 'w', encoding="utf-8") as make_file:
+                with open("usertest_log/"+self.speech_script_instance.title+"("+self.day+")"+".json", 'w', encoding="utf-8") as make_file:
                     json.dump(self.file_data, make_file, ensure_ascii=False, indent='\t')
 
         elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
@@ -84,13 +93,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-            if text_data_json['message']['value'] > 0:
+            if text_data_json['message']['value'] == 1:
                 self.temp.append("next")
                 self.next += 1
 
-            elif text_data_json['message']['value'] < 0:
+            elif text_data_json['message']['value'] == -1:
                 self.temp.append("previous")
                 self.previous += 1
+
+        elif 'text' in text_data_json['message']['event']:
+            pass
+
+
 
     async def notification_message(self, event):
         message = event['message']
@@ -101,6 +115,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
 
     async def button_message(self, event):
+        message = event['message']
+        if self.channel_name != event['sender_channel_name']:
+            await self.send(text_data=json.dumps({  # json으로 변환
+                'message': message
+            }))
+
+    async def text_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({  # json으로 변환
