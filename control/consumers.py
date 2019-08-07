@@ -24,7 +24,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         '''
 
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
-        self.current_line = 0
         self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
         await self.channel_layer.group_add(
@@ -35,6 +34,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+
+        if self.user_categiry == 'mobile':
+            self.file_data['log'] = self.temp
+            self.file_data['sum_of_previous'] = self.previous
+            self.file_data['sum_of_next'] = self.next
+            self.file_data['sum_of_button'] = self.previous + self.next
+            self.file_data["sum_of_runtime"] = time.time() - self.start
+            if (time.time() - self.start) > 30:
+                with open("usertest_log/" + self.speech_script_instance.title + "(" + self.day + ")" + ".json", 'w',
+                          encoding="utf-8") as make_file:
+                    json.dump(self.file_data, make_file, ensure_ascii=False, indent='\t')
+                print("save log file")
+            else:
+                print("Do not save log file less than 30 seconds")
+
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'notification_message',
+                    'message': {'event': "notification", "user_category": "mobile", "value": "exit"},
+                    'sender_channel_name': self.channel_name
+                }
+            )
+
+        elif self.user_categiry == 'web':
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'notification_message',
+                    'message': {'event': "notification", "user_category": "web", "value": "exit"},
+                    'sender_channel_name': self.channel_name
+                }
+            )
+
         #그룹을 떠남
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -48,22 +82,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)  # dictionary로 변환
 
         if 'notification' in text_data_json['message']['event']:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'notification_message',
-                    'message': text_data_json['message'],
-                    'sender_channel_name': self.channel_name
-                }
-            )
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
-                if CHANNEL_LAYERS.get("mobile_"+self.room_group_name) is None:
-                    CHANNEL_LAYERS.__setitem__("mobile_"+self.room_group_name, 1)
-                    print("*****아무도없는데 mobile이 들어왔다")
-                else:
-                    await self.close()
-                    print("*******누가 있는데 들어왔다 강제로 나가라")
-
+                self.user_categiry='mobile'
                 self.start = time.time()
                 self.temp = []
                 self.previous = 0
@@ -72,16 +92,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.day = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
                 self.file_data["speech_script_title"] = self.speech_script_instance.title
 
-            elif 'mobile' in text_data_json['message']['user_category'] and 'exit' in text_data_json['message']['value']:
-                CHANNEL_LAYERS.__delitem__("mobile_"+self.room_group_name)
+            elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
+                self.user_categiry='web'
 
-                self.file_data['log'] = self.temp
-                self.file_data['sum_of_previous'] = self.previous
-                self.file_data['sum_of_next'] = self.next
-                self.file_data['sum_of_button'] = self.previous + self.next
-                self.file_data["sum_of_runtime"] = time.time() - self.start
-                with open("usertest_log/"+self.speech_script_instance.title+"("+self.day+")"+".json", 'w', encoding="utf-8") as make_file:
-                    json.dump(self.file_data, make_file, ensure_ascii=False, indent='\t')
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'notification_message',
+                    'message': text_data_json['message'],
+                    'sender_channel_name': self.channel_name
+                }
+            )
 
         elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
             await self.channel_layer.group_send(
@@ -92,11 +113,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_channel_name': self.channel_name
                 }
             )
-
             if text_data_json['message']['value'] == 1:
                 self.temp.append("next")
                 self.next += 1
-
             elif text_data_json['message']['value'] == -1:
                 self.temp.append("previous")
                 self.previous += 1
