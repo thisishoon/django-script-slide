@@ -5,7 +5,6 @@ from rest_framework.authtoken.models import Token
 from scriptslide.settings import CHANNEL_LAYERS
 import json
 import time
-from collections import OrderedDict
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -36,20 +35,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
 
         if self.user_category == 'mobile':
-            self.file_data['log'] = self.temp
-            self.file_data['sum_of_previous'] = self.previous
-            self.file_data['sum_of_next'] = self.next
-            self.file_data['sum_of_button'] = self.previous + self.next
-            self.file_data["sum_of_runtime"] = time.time() - self.start
-            if (time.time() - self.start) > 30 & (self.previous + self.next) > 10:
-                with open("usertest_log/" + self.speech_script_instance.title + "(" + self.day + ")" + ".json", 'w',
-                          encoding="utf-8") as make_file:
-                    json.dump(self.file_data, make_file, ensure_ascii=False, indent='\t')
-                print("save log file")
-            else:
-                print("Do not save log file less than 30 seconds or 10 button")
-
-
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -58,8 +43,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_channel_name': self.channel_name
                 }
             )
-
-            CHANNEL_LAYERS.__delitem__("mobile"+self.room_group_name)
+            CHANNEL_LAYERS.__delitem__("mobile" + self.room_group_name)
             print("mobile 정상 퇴장")
 
         elif self.user_category == 'web':
@@ -72,15 +56,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        elif self.user_category == 'anonymous':
-            return
+        elif self.user_category == 'duplicated_fail':
+            pass
 
-        #web and mobile 그룹을 떠남
+
+        # web and mobile 그룹을 떠남
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-
 
     # 받는 역할
     async def receive(self, text_data):
@@ -89,26 +73,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if 'notification' in text_data_json['message']['event']:
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
-                if CHANNEL_LAYERS.get("mobile"+self.room_group_name) == None:
-                    print("mobile 입장")
-                    CHANNEL_LAYERS.setdefault("mobile"+self.room_group_name,1)
-                    self.user_category='mobile'
-                    self.start = time.time()
-                    self.temp = []
-                    self.previous = 0
-                    self.next = 0
-                    self.file_data = OrderedDict()
-                    self.day = time.strftime('%Y-%m-%d %H:%M', time.localtime(time.time()))
-                    self.file_data["speech_script_title"] = self.speech_script_instance.title
-                elif CHANNEL_LAYERS.get("mobile"+self.room_group_name) == 1:
-                    self.user_category = 'anonymous'
+                #정상입장
+                if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
+                    self.user_category = 'mobile'
+                    print("mobile 정상 입장")
+                    CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
+
+                #강제퇴장
+                elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
+                    self.user_category = 'duplicated_fail'
                     print("mobile 강제 퇴장")
+                    await self.send(text_data=json.dumps({
+                        'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
+                    }))
                     await self.close()
-                    return
 
+            #웹 입장
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
-                self.user_category='web'
+                self.user_category = 'web'
 
+
+            #정상 입장된 user에 대한 알림
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -117,6 +102,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_channel_name': self.channel_name
                 }
             )
+            return
 
         elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
             await self.channel_layer.group_send(
@@ -127,17 +113,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_channel_name': self.channel_name
                 }
             )
-            if text_data_json['message']['value'] == 1:
-                self.temp.append("next")
-                self.next += 1
-            elif text_data_json['message']['value'] == -1:
-                self.temp.append("previous")
-                self.previous += 1
+            return
 
         elif 'text' in text_data_json['message']['event']:
-            pass
-
-
+            return
 
     async def notification_message(self, event):
         message = event['message']
