@@ -103,7 +103,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             return
-
+        #manual control
         elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -115,7 +115,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
 
+        #speech control
         elif 'text' in text_data_json['message']['event']:
+            print(text_data_json['message']['value'])
             return
 
     async def notification_message(self, event):

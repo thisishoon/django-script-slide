@@ -36,6 +36,8 @@ incremental==17.5.0
 inflection==0.3.1
 itypes==1.1.0
 Jinja2==2.10.1
+JPype1==0.7.0
+konlpy==0.5.1
 MarkupSafe==1.1.1
 msgpack==0.6.1
 oauthlib==3.0.2
