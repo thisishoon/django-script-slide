@@ -56,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        elif self.user_category == 'duplicated_fail':
+        elif self.user_category == 'duplicate_fail':
             pass
 
 
@@ -81,7 +81,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                 #강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
-                    self.user_category = 'duplicated_fail'
+                    self.user_category = 'duplicate_fail'
                     print("mobile 강제 퇴장")
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
