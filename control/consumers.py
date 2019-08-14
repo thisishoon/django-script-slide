@@ -44,7 +44,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             CHANNEL_LAYERS.__delitem__("mobile" + self.room_group_name)
-            print("mobile 정상 퇴장")
+            print("mobile exit")
 
         elif self.user_category == 'web':
             await self.channel_layer.group_send(
@@ -76,13 +76,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 #정상입장
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
                     self.user_category = 'mobile'
-                    print("mobile 정상 입장")
+                    print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
                 #강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
                     self.user_category = 'duplicate_fail'
-                    print("mobile 강제 퇴장")
+                    print("mobile fail")
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
                     }))
@@ -116,7 +116,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         #speech control
-        elif 'text' in text_data_json['message']['event']:
+        elif 'speech' in text_data_json['message']['event']:
             print(text_data_json['message']['value'])
             return
 
