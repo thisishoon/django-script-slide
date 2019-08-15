@@ -78,6 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.user_category = 'mobile'
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
+                    self.buffer = []
 
                 #강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
@@ -117,7 +118,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         #speech control
         elif 'speech' in text_data_json['message']['event']:
-            print(text_data_json['message']['value'])
+            temp = text_data_json['message']['value']
+            self.buffer.append(temp)
+            print(temp)
             return
 
     async def notification_message(self, event):

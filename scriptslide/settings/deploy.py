@@ -2,6 +2,12 @@ from .base import *
 
 DEBUG = False
 
+ALLOWED_HOSTS = [
+    '172.31.47.251',
+    '.scriptslide.com',
+    '.amazonaws.com',
+]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
