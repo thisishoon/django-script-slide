@@ -2,7 +2,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from script.models import SpeechScript
 from rest_framework.authtoken.models import Token
-from scriptslide.settings import CHANNEL_LAYERS
+from scriptslide.settings.base import CHANNEL_LAYERS
 import json
 import time
 

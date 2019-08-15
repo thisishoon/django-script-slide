@@ -13,8 +13,7 @@ import datetime
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -23,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'qjvif0w)2)q(_v9g+s1%fyc5@&!jjcmh8*3vl$hc2_4f1#oh0w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -59,8 +58,6 @@ INSTALLED_APPS = [
     'channels',
     'script',
     'control',
-
-
 ]
 
 MIDDLEWARE = [
@@ -79,8 +76,7 @@ ROOT_URLCONF = 'scriptslide.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,16 +91,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'scriptslide.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation
@@ -125,7 +114,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -133,11 +121,11 @@ LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
 
-#USE_I18N = True
+# USE_I18N = True
 
-#USE_L10N = True
+# USE_L10N = True
 
-#USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -146,7 +134,6 @@ TIME_ZONE = 'Asia/Seoul'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-
 REST_FRAMEWORK = {
 
     'DEFAULT_PERMISSION_CLASSES': (
@@ -154,14 +141,12 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
 
-    
-    
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
 }
 
@@ -188,12 +173,11 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  #브라우저가 닫혀도 세션 저�
 SESSION_SAVE_EVERY_REQUEST = True       #세션이 날라올 떄 마다 갱신
 '''
 
-TOKEN_EXPIRED_AFTER_SECONDS = 60*60*24*30*12 #1년
+TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 24 * 30 * 12  # 1년
 
 ACCOUNT_EMAIL_REQUIRED = False
-ACCOUNT_USERNAME_REQUIRED = True  #우선은 USERNAME으로만 로그인
-SITE_ID = 1             #  rest auth 사용 시 DB 위치 명시localhost에서
-
+ACCOUNT_USERNAME_REQUIRED = True  # 우선은 USERNAME으로만 로그인
+SITE_ID = 1  # rest auth 사용 시 DB 위치 명시localhost에서
 
 ASGI_APPLICATION = 'scriptslide.routing.application'
 
@@ -203,7 +187,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],
         },
-        'group_expiry': 60*60*3,     #3시간
-        'expiry': 60               #60초
+        'group_expiry': 60 * 60 * 3,  # 3시간
+        'expiry': 60  # 60초
     },
 }
