@@ -5,6 +5,7 @@ from rest_framework.authtoken.models import Token
 from scriptslide.settings.base import CHANNEL_LAYERS
 import json
 import time
+from control.check import *
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -21,9 +22,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if self.speech_script_instance.user == token.user:
         print('ok')
         '''
-
+        self.buffer = ""
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
         self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
+
 
         await self.channel_layer.group_add(
             self.room_group_name,  # 그룹 이름 = 방 이름
@@ -78,7 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.user_category = 'mobile'
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
-                    self.buffer = []
+
 
                 #강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
@@ -116,11 +118,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
 
+        #line
+        elif 'sentence' in text_data_json['message']['event']:
+            CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
+            temp = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
+            print(temp)
+            return
+
         #speech control
         elif 'speech' in text_data_json['message']['event']:
+            current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
             temp = text_data_json['message']['value']
-            self.buffer.append(temp)
-            print(temp)
+            self.buffer += " " + temp
+            print("current_sentence : " + current_sentence)
+            print("speech_sentence : " + self.buffer)
             return
 
     async def notification_message(self, event):
