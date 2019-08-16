@@ -118,11 +118,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
 
-        #line
+        #sentence
         elif 'sentence' in text_data_json['message']['event']:
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
-            temp = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
-            print(temp)
+            #temp = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
+            #print(temp)
             return
 
         #speech control
@@ -130,8 +130,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
             temp = text_data_json['message']['value']
             self.buffer += " " + temp
+
             print("current_sentence : " + current_sentence)
             print("speech_sentence : " + self.buffer)
+
+
+            #성공
+            if ckeck_sentence_similarity(current_sentence, self.buffer):
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'speech_message',
+                        'message': {'event': "button", "user_category": "mobile", "value": 1},
+                        'sender_channel_name': self.channel_name
+                    }
+                )
+                self.buffer = ""
+                print("speech success")
+
+            print("**********************")
             return
 
     async def notification_message(self, event):
@@ -149,7 +166,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': message
             }))
 
-    async def text_message(self, event):
+    async def speech_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({  # json으로 변환
