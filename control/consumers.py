@@ -78,6 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
                 #정상입장
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
+                    self.status = True
                     self.user_category = 'mobile'
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
@@ -95,6 +96,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             #웹 입장
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
                 self.user_category = 'web'
+                self.hangul = re.compile('[^가-힣a-z0-9]+')
 
 
             #정상 입장된 user에 대한 알림
@@ -123,9 +125,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         #sentence
         elif 'sentence' in text_data_json['message']['event']:
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
-            parse_sentence = re.sub('[-=.?! \'\"]', '', text_data_json['message']['value'])
+            parse_sentence = self.hangul.sub('', text_data_json['message']['value'])    #정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
-            print("set  "+parse_sentence)
+            print("set  :"+parse_sentence)
             return
 
         #speech control
@@ -141,17 +143,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
             #success
-            if cmp_only_char(current_parse_sentence, text):
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'speech_message',
-                        'message': {'event': "button", "user_category": "mobile", "value": 1},
-                        'sender_channel_name': self.channel_name
-                    }
-                )
+            if self.status:
+                self.status = False
+                if cmp_only_char(current_parse_sentence, text):
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'speech_message',
+                            'message': {'event': "button", "user_category": "mobile", "value": 1},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
+
+                self.status = True
+
+            else:
+                print("algorithm is doing")
 
             print("**********************")
+
             return
 
     async def notification_message(self, event):
