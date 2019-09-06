@@ -76,6 +76,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # 정상입장
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
                     self.user_category = 'mobile'
+                    self.buffer = ""
+                    self.word = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -148,21 +150,40 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             text = text_data_json['message']['value']
 
+
+
             print("current_parse_sentence : " + current_parse_sentence)
             print("speech_sentence : " + text)
+            print("원본 어절 " + str(self.word))
+            print("음성 어절 " + str(len(text.split(" "))))
 
-            # success
-            if cmp_only_char(current_parse_sentence, text):
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'speech_message',
-                        'message': {'event': "button", "user_category": "mobile", "value": 1},
-                        'sender_channel_name': self.channel_name
-                    }
-                )
-            print("**********************")
-            return
+            if self.word > len(text.split(" ")):
+                print("ㄴㄴ")
+                self.buffer += text
+
+            elif self.word == len(text.split(" ")):
+                print("ㄱㄷ")
+                return
+
+            elif self.word < len(text.split(" ")):
+                self.word = len(text.split(" "))
+                self.buffer = text
+                print("ㄱㄱ")
+
+                # success
+                if cmp_only_char(current_parse_sentence, self.buffer):
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'speech_message',
+                            'message': {'event': "button", "user_category": "mobile", "value": 1},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
+                    self.buffer = ""
+                    self.word = 0
+
+                return
 
     async def notification_message(self, event):
         message = event['message']
