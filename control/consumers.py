@@ -171,7 +171,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 print("ㄱㄱ")
 
                 # success
-                if cmp_only_char(current_parse_sentence, self.buffer):
+                if LCS(current_parse_sentence, self.buffer):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -182,6 +182,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     )
                     self.buffer = ""
                     self.word = 0
+
 
                 return
 
