@@ -16,5 +16,6 @@ DATABASES = {
         'NAME': 'scriptslide',
         'USER': 'jihoon',
         'PASSWORD': 'rkdwlgns0522',
+        'CONN_MAX_AGE': None,
     }
 }

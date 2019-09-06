@@ -23,10 +23,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if self.speech_script_instance.user == token.user:
         print('ok')
         '''
-        self.buffer = ""
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
-        self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
-
+        # self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
         await self.channel_layer.group_add(
             self.room_group_name,  # 그룹 이름 = 방 이름
@@ -62,7 +60,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif self.user_category == 'duplicate_fail':
             pass
 
-
         # web and mobile 그룹을 떠남
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -76,30 +73,42 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if 'notification' in text_data_json['message']['event']:
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
-                #정상입장
+                # 정상입장
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
-                    self.status = True
                     self.user_category = 'mobile'
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
 
-                #강제퇴장
+                # 강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
                     self.user_category = 'duplicate_fail'
                     print("mobile fail")
+
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
                     }))
-                    await self.close()
 
-            #웹 입장
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'notification_message',
+                            'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
+
+                    await self.close()
+                    return
+
+
+            # 웹 입장
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
                 self.user_category = 'web'
+                # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
                 self.hangul = re.compile('[^가-힣a-z0-9]+')
 
-
-            #정상 입장된 user에 대한 알림
+            # 정상 입장된 user에 대한 알림
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -109,8 +118,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
             return
-        #manual control
-        #mobile에서 UI를 통해 manual_control 시 동작
+
+        # manual control
+        # mobile에서 UI를 통해 manual_control 시 동작
         elif 'mobile' in text_data_json['message']['user_category'] and 'button' in text_data_json['message']['event']:
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -122,16 +132,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             return
 
-        #sentence
+        # sentence
         elif 'sentence' in text_data_json['message']['event']:
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
-            parse_sentence = self.hangul.sub('', text_data_json['message']['value'])    #정규표현식으로 추출
+            parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
-            print("set  :"+parse_sentence)
+            print("set  :" + parse_sentence)
             return
 
-        #speech control
-        #mobile에서 speech event를 통한 stt의 결과물인 text receive
+        # speech control
+        # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
             current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
@@ -141,47 +151,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("current_parse_sentence : " + current_parse_sentence)
             print("speech_sentence : " + text)
 
-
-            #success
-            if self.status:
-                self.status = False
-                if cmp_only_char(current_parse_sentence, text):
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'speech_message',
-                            'message': {'event': "button", "user_category": "mobile", "value": 1},
-                            'sender_channel_name': self.channel_name
-                        }
-                    )
-
-                self.status = True
-
-            else:
-                print("algorithm is doing")
-
+            # success
+            if cmp_only_char(current_parse_sentence, text):
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'speech_message',
+                        'message': {'event': "button", "user_category": "mobile", "value": 1},
+                        'sender_channel_name': self.channel_name
+                    }
+                )
             print("**********************")
-
             return
 
     async def notification_message(self, event):
         message = event['message']
         # Send message to WebSocket
         if self.channel_name != event['sender_channel_name']:
-            await self.send(text_data=json.dumps({  # json으로 변환
+            await self.send(text_data=json.dumps({
                 'message': message
             }))
 
     async def button_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
-            await self.send(text_data=json.dumps({  # json으로 변환
+            await self.send(text_data=json.dumps({
                 'message': message
             }))
 
     async def speech_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
-            await self.send(text_data=json.dumps({  # json으로 변환
+            await self.send(text_data=json.dumps({
                 'message': message
             }))

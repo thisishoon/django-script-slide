@@ -20,6 +20,7 @@ def cmp_only_char(origin_sentence, speech_sentence):
                 # 한바퀴 다돌고 판단
     print(minimum_cnt)
     print(cnt)
+    print(str(cnt/minimum_cnt)+"%")
     if cnt > minimum_cnt:
         print("success")
         return 1
