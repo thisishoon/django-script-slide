@@ -160,13 +160,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 print("ㄱㄷ")
                 return
 
-            elif self.word > speech_word & self.word != 1:
-                print("ㄴㄴ")
-                self.buffer += text
-                self.word = speech_word
-                return
+            else:
+                if self.word != 1 and speech_word ==1:
+                    self.buffer += text
+                    return
 
-            elif self.word < speech_word:
                 self.word = speech_word
                 print("ㄱㄱ")
 
