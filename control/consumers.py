@@ -149,29 +149,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
 
             text = text_data_json['message']['value']
-
-
-
+            speech_word = len(text.split(' '))
             print("current_parse_sentence : " + current_parse_sentence)
             print("speech_sentence : " + text)
-            print("원본 어절 " + str(self.word))
-            print("음성 어절 " + str(len(text.split(" "))))
+            print("buffer_sentence :" + self.buffer)
+            print("기존 어절 " + str(self.word))
+            print("음성 어절 " + str(speech_word))
 
-            if self.word > len(text.split(" ")):
+            if self.word > speech_word:
                 print("ㄴㄴ")
                 self.buffer += text
+                self.word = speech_word
+                return
 
-            elif self.word == len(text.split(" ")):
+            elif self.word == speech_word:
                 print("ㄱㄷ")
                 return
 
-            elif self.word < len(text.split(" ")):
-                self.word = len(text.split(" "))
-                self.buffer = text
+            elif self.word < speech_word:
+                self.word = speech_word
                 print("ㄱㄱ")
 
                 # success
-                if LCS(current_parse_sentence, self.buffer):
+                if LCS(current_parse_sentence, self.buffer + text):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -182,8 +182,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     )
                     self.buffer = ""
                     self.word = 0
-
-
                 return
 
     async def notification_message(self, event):
