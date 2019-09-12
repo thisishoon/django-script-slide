@@ -161,12 +161,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return
 
             else:
-                if self.word != 1 and speech_word ==1:
-                    self.buffer += text
-                    return
-
                 self.word = speech_word
                 print("ㄱㄱ")
+
+                if len(text) == 0:    #문장이 끊겼을 떄
+                    self.buffer += text
+                    self.word = 0
+
+
 
                 # success
                 if LCS(current_parse_sentence, self.buffer + text):
