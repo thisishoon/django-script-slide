@@ -20,7 +20,7 @@ def cmp_only_char(origin_sentence, speech_sentence):
                 # 한바퀴 다돌고 판단
     print(minimum_cnt)
     print(cnt)
-    print(str(cnt/minimum_cnt)+"%")
+    print(str(cnt / minimum_cnt) + "%")
     if cnt > minimum_cnt:
         print("success")
         return 1
@@ -68,9 +68,8 @@ def LCS(origin_sentence, speech_sentence):
             else:
                 lcs[i][j] = max(lcs[i][j - 1], lcs[i - 1][j])
 
-    print(lcs[-1][-1])
     minimum = (len1 ** 2 + len1) / 2
-    print(minimum)
+
     print(lcs[-1][-1] / minimum)
 
     if (lcs[-1][-1] / minimum) > 0.6:

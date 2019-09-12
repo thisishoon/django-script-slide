@@ -156,14 +156,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("기존 어절 " + str(self.word))
             print("음성 어절 " + str(speech_word))
 
-            if self.word > speech_word:
+            if self.word == speech_word:
+                print("ㄱㄷ")
+                return
+
+            elif self.word > speech_word & self.word != 1:
                 print("ㄴㄴ")
                 self.buffer += text
                 self.word = speech_word
-                return
-
-            elif self.word == speech_word:
-                print("ㄱㄷ")
                 return
 
             elif self.word < speech_word:
@@ -181,7 +181,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         }
                     )
                     self.buffer = ""
-                    self.word = 0
                 return
 
     async def notification_message(self, event):
