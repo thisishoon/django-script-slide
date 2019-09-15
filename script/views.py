@@ -20,13 +20,14 @@ def CreateGuestUser(request):
 
     if request.method == "POST":
         username = ''.join(
-            random.choice(string.ascii_uppercase + string.digits) for _ in range(10)) + "@scriptsslide.com"
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        email = username + '@scriptslide.com'
         password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
-        user_instance = User.objects.create_user(username=username, password=password)
+        user_instance = User.objects.create_user(username=username, email=email, password=password)
         user_instance.save()
         if user_instance.is_authenticated:
-            login(request, user_instance)
+            login(request, user_instance, backend='django.contrib.auth.backends.ModelBackend')
             token = Token.objects.create(user=user_instance)
             token.save()
             return JsonResponse({"token_key": token.key})  # token은 key와 user(username을 출력)를 필드로 가진다
@@ -36,7 +37,7 @@ def CreateGuestUser(request):
 
 class SpeechScriptViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (TokenAuthentication,)
+    #authentication_classes = (TokenAuthentication,)
 
     queryset = SpeechScript.objects.all()
     serializer_class = SpeechScriptSerializer

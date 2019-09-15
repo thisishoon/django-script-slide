@@ -22,6 +22,7 @@ from rest_framework_jwt.views import verify_jwt_token
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_auth.registration.views import VerifyEmailView, RegisterView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -45,8 +46,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('script.urls')),
 
-    path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls')),
-
-
+    path('api/rest-auth/', include('rest_auth.urls')),
+    path('api/rest-auth/registration/', include('rest_auth.registration.urls')),
+    path('api/accounts/', include('allauth.urls')),
+    path('/', include('django.contrib.auth.urls')),
 ]
