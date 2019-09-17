@@ -181,12 +181,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-#EMAIL_HOST_USER = 'jihoon.kang@scriptslide.com'
-EMAIL_HOST_USER = 'rkdwlgns0522@gmail.com'
-EMAIL_HOST_PASSWORD = 'qwcho22!'
+EMAIL_HOST_USER = 'jihoon.kang@scriptslide.com'
+EMAIL_HOST_PASSWORD = 'vxdptjtimtoyyglq'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-LOGIN_REDIRECT_URL = 'https://scriptslide.com'
+LOGIN_REDIRECT_URL = 'https://scriptslide.com/scripts'
 
 #Following is added to enable registration with email instead of username
 AUTHENTICATION_BACKENDS = (
