@@ -106,6 +106,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # 웹 입장
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
+
                 self.user_category = 'web'
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
                 self.hangul = re.compile('[^가-힣a-z0-9]+')

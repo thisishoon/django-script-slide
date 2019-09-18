@@ -208,3 +208,7 @@ CHANNEL_LAYERS = {
         'expiry': 60  # 60초
     },
 }
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+        'REGISTER_SERIALIZER': 'user.serializers.RegisterSerializer',
+}
