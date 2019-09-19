@@ -175,6 +175,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False  # 우선은 USERNAME으로만 로그인
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1 #
 SITE_ID = 1  # rest auth 사용 시 DB 위치 명시localhost에서
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
