@@ -1,0 +1,5 @@
+{% load account %}{% user_display user as user_display %}{% load i18n %}{% autoescape off %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Hello from {{ site_name }}! 👋
+
+To active {{ user_display }}'s ScriptSlide email 👉 {{ activate_url }}
+{% endblocktrans %}{% endautoescape %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}Sent from {{ site_name }} ✔️{% endblocktrans %}
