@@ -48,6 +48,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("mobile exit")
 
         elif self.user_category == 'web':
+            num_web = CHANNEL_LAYERS.get("web"+self.room_group_name)
+            if num_web == 1:
+                CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, None)
+            else:
+                CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, num_web-1)
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -57,7 +63,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        elif self.user_category == 'duplicate_fail':
+        elif self.user_category == 'mobile_fail':
             pass
 
         # web and mobile 그룹을 떠남
@@ -73,6 +79,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if 'notification' in text_data_json['message']['event']:
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
+
+                if CHANNEL_LAYERS.get("web"+self.room_group_name) == None:
+                    print("mobile unmatched_fail")
+                    self.user_category = 'mobile_fail'
+                    await self.send(text_data=json.dumps({
+                        'message': {'event': "notification", "user_category": "mobile", "value": "unmatched_fail"}
+                    }))
+                    await self.close()
+                    return
+
                 # 정상입장
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
                     self.user_category = 'mobile'
@@ -84,8 +100,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
                 # 강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
-                    self.user_category = 'duplicate_fail'
-                    print("mobile fail")
+                    self.user_category = 'mobile_fail'
+                    print("mobile duplicate_fail")
 
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
@@ -104,10 +120,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     return
 
 
+
+
             # 웹 입장
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
 
                 self.user_category = 'web'
+                num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
+                if num_web is None:
+                    CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, 1)
+
+                else:
+                    CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, num_web+1)
+
+
+
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
                 self.hangul = re.compile('[^가-힣a-z0-9]+')
 
