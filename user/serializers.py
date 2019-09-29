@@ -4,13 +4,21 @@ from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_auth.serializers import UserDetailsSerializer
+from .models import Profile
+
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
-    first_name = serializers.CharField(required=True, write_only=True)
-    last_name = serializers.CharField(required=True, write_only=True)
-    password1 = serializers.CharField(required=True, write_only=True)
+    first_name = serializers.CharField(required=True)#, write_only=True)
+    last_name = serializers.CharField(required=True)#, write_only=True)
+    password1 = serializers.CharField(required=True)#, write_only=True)
     password2 = serializers.CharField(required=True, write_only=True)
+    locale = serializers.CharField(required=True)#, write_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ['email', 'locale']
 
     def validate_email(self, email):
         email = get_adapter().clean_email(email)
@@ -37,6 +45,7 @@ class RegisterSerializer(serializers.Serializer):
             'last_name': self.validated_data.get('last_name', ''),
             'password1': self.validated_data.get('password1', ''),
             'email': self.validated_data.get('email', ''),
+            'locale': self.validated_data.get('locale', ''),
         }
 
     def save(self, request):
@@ -47,3 +56,7 @@ class RegisterSerializer(serializers.Serializer):
         self.custom_signup(request, user)
         setup_user_email(request, user, [])
         return user
+
+
+
+

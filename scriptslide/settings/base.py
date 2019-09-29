@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'channels',
     'script',
     'control',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -213,4 +214,5 @@ CHANNEL_LAYERS = {
 
 REST_AUTH_REGISTER_SERIALIZERS = {
         'REGISTER_SERIALIZER': 'user.serializers.RegisterSerializer',
+        'USER_DETAILS_SERIALIZER': 'user.serializers.UserSerializer'
 }

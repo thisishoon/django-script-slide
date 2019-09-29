@@ -138,11 +138,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
                 self.hangul = re.compile('[^가-힣a-z0-9]+')
 
+
+
             # 정상 입장된 user에 대한 알림
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'notification_message',
+                    'message': text_data_json['message'],
+                    'sender_channel_name': self.channel_name
+                }
+            )
+            return
+
+        elif 'custom' in text_data_json['message']['event']:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'custom_message',
                     'message': text_data_json['message'],
                     'sender_channel_name': self.channel_name
                 }
@@ -184,32 +197,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print("기존 어절 " + str(self.word))
             print("음성 어절 " + str(speech_word))
 
-            if self.word == speech_word:
-                print("ㄱㄷ")
-                return
+            if(text_data_json['message']['status']=="doing"):
+                print("말하는 중"+text)
 
-            else:
-                self.word = speech_word
-                print("ㄱㄱ")
+            elif(text_data_json['message']['status']=='done'):
+                self.buffer += text
+                print("말 끝"+text)
 
-                if len(text) == 0:    #문장이 끊겼을 떄
-                    self.buffer += text
-                    self.word = 0
-
-
-
-                # success
-                if LCS(current_parse_sentence, self.buffer + text):
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'speech_message',
-                            'message': {'event': "button", "user_category": "mobile", "value": 1},
-                            'sender_channel_name': self.channel_name
-                        }
-                    )
-                    self.buffer = ""
-                return
+            # success
+            if LCS(current_parse_sentence, self.buffer + text):
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'speech_message',
+                        'message': {'event': "button", "user_category": "mobile", "value": 1},
+                        'sender_channel_name': self.channel_name
+                    }
+                )
+                self.buffer = ""
+            return
 
     async def notification_message(self, event):
         message = event['message']
@@ -227,6 +233,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
 
     async def speech_message(self, event):
+        message = event['message']
+        if self.channel_name != event['sender_channel_name']:
+            await self.send(text_data=json.dumps({
+                'message': message
+            }))
+
+    async def custom_message(self, event):
         message = event['message']
         if self.channel_name != event['sender_channel_name']:
             await self.send(text_data=json.dumps({
