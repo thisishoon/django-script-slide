@@ -173,7 +173,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
-            print(text_data_json['message'])
             return
 
         # speech control
@@ -182,10 +181,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
             text = text_data_json['message']['value']
             if len(text) < len(current_parse_sentence) * 0.7:
+                print("tass")
                 return
-
-            print("speech_sentence : " + text)
-            print("buffer_sentence :" + self.buffer)
 
             if(text_data_json['message']['status']=="doing"):
                 print("말하는 중"+text)
@@ -193,6 +190,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             elif(text_data_json['message']['status']=='done'):
                 self.buffer += text
                 print("말 끝"+text)
+
+            print(current_parse_sentence)
+            print("self.buffer + text : "+self.buffer+text)
 
             # success
             if LCS(current_parse_sentence, self.buffer + text):
