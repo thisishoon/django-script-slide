@@ -7,6 +7,7 @@ from scriptslide.settings.deploy import CHANNEL_LAYERS
 
 import json
 import time
+
 from control.check import *
 import re
 
@@ -87,6 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.user_category = 'mobile'
                     self.buffer = ""
                     self.mutex = 0
+                    self.time = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -178,18 +180,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
-            if self.mutex == 1:
+            if time.time() - self.time < 0.5:
                 return
+            else:
+                self.time = time.time()
 
-            self.mutex = 1
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
             text = text_data_json['message']['value']
 
-            if len(text) < len(current_parse_sentence) * 0.7:
-                print("tass")
+            if len(self.buffer+text) < len(current_parse_sentence) * 0.7:
+                print("pass")
                 return
 
-
+            print(current_parse_sentence)
+            print(self.buffer + text)
 
             # success
             if LCS(current_parse_sentence, self.buffer + text):
@@ -202,12 +206,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 self.buffer = ""
-                time.sleep(1)
+
 
             else:
                 if (text_data_json['message']['status'] == 'done'):
                     self.buffer += text
-        self.mutex = 0
+
+
         return
 
 
