@@ -201,16 +201,7 @@ AUTHENTICATION_BACKENDS = (
 
 ASGI_APPLICATION = 'scriptslide.routing.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-        'group_expiry': 60 * 60 * 3,  # 3시간
-        'expiry': 60  # 60초
-    },
-}
+
 
 REST_AUTH_REGISTER_SERIALIZERS = {
         'REGISTER_SERIALIZER': 'user.serializers.RegisterSerializer',

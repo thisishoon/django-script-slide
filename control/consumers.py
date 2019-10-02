@@ -190,14 +190,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
 
             text = text_data_json['message']['value']
-            speech_word = len(text.split(' '))
             print("current_parse_sentence : " + current_parse_sentence)
             print("speech_sentence : " + text)
             print("buffer_sentence :" + self.buffer)
-            print("기존 어절 " + str(self.word))
-            print("음성 어절 " + str(speech_word))
 
             if(text_data_json['message']['status']=="doing"):
+                self.buffer = text
                 print("말하는 중"+text)
 
             elif(text_data_json['message']['status']=='done'):
