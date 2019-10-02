@@ -86,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
                     self.user_category = 'mobile'
                     self.buffer = ""
-                    self.word = 0
+                    self.mutex = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -178,21 +178,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
+            if self.mutex == 1:
+                return
+
+            self.mutex = 1
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
             text = text_data_json['message']['value']
+
             if len(text) < len(current_parse_sentence) * 0.7:
                 print("tass")
                 return
 
-            if(text_data_json['message']['status']=="doing"):
-                print("말하는 중"+text)
 
-            elif(text_data_json['message']['status']=='done'):
-                self.buffer += text
-                print("말 끝"+text)
-
-            print(current_parse_sentence)
-            print("self.buffer + text : "+self.buffer+text)
 
             # success
             if LCS(current_parse_sentence, self.buffer + text):
@@ -205,7 +202,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 self.buffer = ""
-            return
+                time.sleep(1)
+
+            else:
+                if (text_data_json['message']['status'] == 'done'):
+                    self.buffer += text
+        self.mutex = 0
+        return
+
 
     async def notification_message(self, event):
         message = event['message']
