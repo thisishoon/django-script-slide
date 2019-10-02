@@ -2,7 +2,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from script.models import SpeechScript
 from rest_framework.authtoken.models import Token
-from scriptslide.settings.base import CHANNEL_LAYERS
+from scriptslide.settings.debug import CHANNEL_LAYERS
+from scriptslide.settings.deploy import CHANNEL_LAYERS
+
 import json
 import time
 from control.check import *
@@ -13,16 +15,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
-        '''
-        print(self.scope['user'])
-        temp= text_data_json['message']['token']
-        print(temp)
-        token= Token.objects.get(key=temp)
-        self.scope['user']=token.user
-        print(self.scope['user'])
-        if self.speech_script_instance.user == token.user:
-        print('ok')
-        '''
+
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
         # self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
@@ -180,22 +173,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
-            print("set  :" + parse_sentence)
+            print(text_data_json['message'])
             return
 
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
-            current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
-
             text = text_data_json['message']['value']
-            print("current_parse_sentence : " + current_parse_sentence)
+            if len(text) < len(current_parse_sentence) * 0.7:
+                return
+
             print("speech_sentence : " + text)
             print("buffer_sentence :" + self.buffer)
 
             if(text_data_json['message']['status']=="doing"):
-                self.buffer = text
                 print("말하는 중"+text)
 
             elif(text_data_json['message']['status']=='done'):
