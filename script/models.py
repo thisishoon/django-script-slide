@@ -9,6 +9,7 @@ class SpeechScript(models.Model): #SpeechScript 변경
     content = models.TextField("내용", blank=True, null=False)  # 대본 내용
     created_at = models.DateTimeField("생성 시간", auto_now_add=True)  # 시간 저장
     updated_at = models.DateTimeField("변경 시간", auto_now=True)  # 업데이트 시간 저장
+    is_deleted = models.BooleanField("삭제 유무", default=False)
 
     class Meta:
         ordering = ['-created_at']

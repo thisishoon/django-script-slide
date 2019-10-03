@@ -191,6 +191,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if len(self.buffer+text) < len(current_parse_sentence) * 0.7:
                 print("pass")
                 return
+            #elif len(self.buffer+text) > len(current_parse_sentence)*2:
+
 
             print(current_parse_sentence)
             print(self.buffer + text)
