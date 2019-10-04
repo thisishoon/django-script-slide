@@ -187,6 +187,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
             text = text_data_json['message']['value']
+            print(current_parse_sentence)
+            print(self.buffer + text)
 
             if len(self.buffer+text) < len(current_parse_sentence) * 0.7:
                 print("pass")
@@ -194,8 +196,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             #elif len(self.buffer+text) > len(current_parse_sentence)*2:
 
 
-            print(current_parse_sentence)
-            print(self.buffer + text)
 
             # success
             if LCS(current_parse_sentence, self.buffer + text):
