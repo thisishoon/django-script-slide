@@ -203,7 +203,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.room_group_name,
                     {
                         'type': 'speech_message',
-                        'message': {'event': "button", "user_category": "mobile", "value": 1},
+                        'message': {'event': "speech", "user_category": "server", "value": 1},
                         'sender_channel_name': self.channel_name
                     }
                 )
@@ -235,10 +235,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def speech_message(self, event):
         message = event['message']
-        if self.channel_name != event['sender_channel_name']:
-            await self.send(text_data=json.dumps({
-                'message': message
-            }))
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
+
 
     async def custom_message(self, event):
         message = event['message']

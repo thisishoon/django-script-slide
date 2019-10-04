@@ -47,7 +47,7 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
         if user.is_superuser:
             return SpeechScript.objects.all()
         else:
-            return SpeechScript.objects.filter(user=user, is_deleted=False)
+            return SpeechScript.objects.filter(user=user)#, is_deleted=False)
 
     def create(self, request, **kwargs):  # token으로부터 해당 user의 정보를 파악하고 생성
         # request.user는 User객체의 username값을 가져오고 request.user.id는 User의 id값을 가져온다!
@@ -57,13 +57,13 @@ class SpeechScriptViewSet(viewsets.ModelViewSet):
             serializer.save()
             return JsonResponse(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    '''
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.is_deleted = True
         instance.save()
         return Response(status=status.HTTP_200_OK)
-
+    '''
 
 
     filter_backends = (DjangoFilterBackend,)

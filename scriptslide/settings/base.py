@@ -183,8 +183,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'jihoon.kang@scriptslide.com'
-EMAIL_HOST_PASSWORD = 'vxdptjtimtoyyglq'
+EMAIL_HOST_USER = 's@scriptslide.com'
+EMAIL_HOST_PASSWORD = 'qlnagywztwcayled'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 #ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
