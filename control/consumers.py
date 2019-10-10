@@ -16,7 +16,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
 
-
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
         # self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
@@ -131,7 +130,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
-                self.hangul = re.compile('[^가-힣a-z0-9]+')
+                self.hangul = re.compile('[^가-힣a-zA-Z0-9]+')
 
 
 
@@ -175,11 +174,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
-            if parse_sentence=='':  #공백 문장을 보낼 시
-                await self.send(text_data=json.dumps({
-                    'message': {'event': "speech", "user_category": "server", "value": 1}
-                }))
-                return
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
 
 
@@ -194,6 +188,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.time = time.time()
 
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
+
+            if current_parse_sentence=='':
+                print("blank")
+                return
+
             text = text_data_json['message']['value']
             total_text = self.buffer + text
             print(current_parse_sentence)
@@ -218,7 +217,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 self.buffer = ""
-                print("success! execution time : %d(sec)", self.time-time.time())
+                print("success! execution time : %d(sec)", time.time()-self.time)
 
 
             else:
