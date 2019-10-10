@@ -172,9 +172,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # sentence
         elif 'sentence' in text_data_json['message']['event']:
+
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
+            if parse_sentence=='':  #공백 문장을 보낼 시
+                await self.send(text_data=json.dumps({
+                    'message': {'event': "speech", "user_category": "server", "value": 1}
+                }))
+                return
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
+
+
             return
 
         # speech control
@@ -194,8 +202,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if len(total_text) < len(current_parse_sentence) * 0.7:
                 print("pass")
                 return
+
             elif len(total_text) > len(current_parse_sentence) * 1.3:
-                total_text = total_text[-(len(current_parse_sentence) * 1.2):]
+                total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
 
 
             # success
