@@ -187,18 +187,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
             text = text_data_json['message']['value']
+            total_text = self.buffer + text
             print(current_parse_sentence)
-            print(self.buffer + text)
+            print(total_text)
 
-            if len(self.buffer+text) < len(current_parse_sentence) * 0.7:
+            if len(total_text) < len(current_parse_sentence) * 0.7:
                 print("pass")
                 return
-            #elif len(self.buffer+text) > len(current_parse_sentence)*2:
-
+            elif len(total_text) > len(current_parse_sentence) * 1.3:
+                total_text = total_text[-(len(current_parse_sentence) * 1.2):]
 
 
             # success
-            if LCS(current_parse_sentence, self.buffer + text):
+            if LCS(current_parse_sentence, total_text):
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -208,13 +209,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 self.buffer = ""
+                print("success! execution time : %d(sec)", self.time-time.time())
 
 
             else:
                 if (text_data_json['message']['status'] == 'done'):
                     self.buffer += text
-
-
         return
 
 
