@@ -4,6 +4,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '172.31.47.251',
+    '172.31.42.185',
     '.scriptslide.com',
     '.amazonaws.com',
 ]

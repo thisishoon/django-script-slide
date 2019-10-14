@@ -24,14 +24,6 @@ SECRET_KEY = 'qjvif0w)2)q(_v9g+s1%fyc5@&!jjcmh8*3vl$hc2_4f1#oh0w'
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '172.31.47.251',
-    '.scriptslide.com',
-    '.amazonaws.com',
-]
-
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 

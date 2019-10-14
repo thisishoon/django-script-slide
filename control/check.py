@@ -2,6 +2,7 @@ import gensim
 from konlpy.tag import Kkma, Twitter, Mecab, Komoran, Okt
 from konlpy.utils import pprint
 import codes
+import math
 
 
 # model = gensim.models.Word2Vec.load('control/ko.bin')

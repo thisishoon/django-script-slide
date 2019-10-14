@@ -2,12 +2,11 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from script.models import SpeechScript
 from rest_framework.authtoken.models import Token
-from scriptslide.settings.debug import CHANNEL_LAYERS
+#from scriptslide.settings.debug import CHANNEL_LAYERS
 from scriptslide.settings.deploy import CHANNEL_LAYERS
 
 import json
 import time
-
 from control.check import *
 import re
 
@@ -175,8 +174,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
-
-
             return
 
         # speech control
