@@ -56,24 +56,43 @@ def edit_distance(origin_sentence, speech_sentence):
     return cost
 
 
-def LCS(origin_sentence, speech_sentence):
-    len1 = len(origin_sentence)
+import math
+import pprint
+
+
+def LCS(sentence, parse_sentence, speech_sentence):
+    len1 = len(parse_sentence)
     len2 = len(speech_sentence)
+    combo = -1
+    last_char = -1
 
     lcs = [[0 for i in range(len2 + 1)] for j in range(len1 + 1)]
 
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
-            if origin_sentence[i - 1] == speech_sentence[j - 1]:
-                lcs[i][j] = lcs[i - 1][j - 1] + i
+            if parse_sentence[i - 1] == speech_sentence[j - 1]:
+                lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
+                if i - combo == 1:
+                    print(i, combo)
+                    lcs[i][j] += math.log10(i + 1)
+                    last_char = i - 1
+                combo = i
             else:
                 lcs[i][j] = max(lcs[i][j - 1], lcs[i - 1][j])
 
-    minimum = (len1 ** 2 + len1) / 2
+    sum = (math.log2(math.factorial(len1 + 1)) + math.log10(math.factorial(len1 + 1)) - math.log10(2))
+    similarity = lcs[-1][-1] / sum
+    print(similarity)
 
-    print(lcs[-1][-1] / minimum)
+    point = 0
+    for i in range(0, last_char + 1):
+        for j in range(point, len(sentence)):
+            if parse_sentence[i] == sentence[j]:
+                point = j
+                break
 
-    if (lcs[-1][-1] / minimum) > 0.6:
-        return True
-    else:
-        return False
+    return similarity, point
+
+
+
+

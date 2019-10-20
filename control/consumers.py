@@ -185,7 +185,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.time = time.time()
 
             current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
-
+            current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
             if current_parse_sentence=='':
                 print("blank")
                 return
@@ -202,22 +202,34 @@ class ChatConsumer(AsyncWebsocketConsumer):
             elif len(total_text) > len(current_parse_sentence) * 1.3:
                 total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
 
+            similarity, point = LCS(current_sentence, current_parse_sentence, total_text)
+
 
             # success
-            if LCS(current_parse_sentence, total_text):
+            if similarity > 0.6:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'speech_message',
-                        'message': {'event': "speech", "user_category": "server", "value": 1},
+                        'message': {'event': "speech", "user_category": "server", "value": 1,
+                                    "similarity": similarity, "point": point},
                         'sender_channel_name': self.channel_name
                     }
                 )
                 self.buffer = ""
-                print("success! execution time : %d(sec)", time.time()-self.time)
+                print("success! execution time : ", time.time()-self.time)
 
-
+            #fail
             else:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'speech_message',
+                        'message': {'event': "speech", "user_category": "server", "value": 0,
+                                    "similarity": similarity, "point": point},
+                        'sender_channel_name': self.channel_name
+                    }
+                )
                 if (text_data_json['message']['status'] == 'done'):
                     self.buffer += text
         return
