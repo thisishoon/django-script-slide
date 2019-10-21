@@ -73,7 +73,6 @@ def LCS(sentence, parse_sentence, speech_sentence):
             if parse_sentence[i - 1] == speech_sentence[j - 1]:
                 lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
                 if i - combo == 1:
-                    print(i, combo)
                     lcs[i][j] += math.log10(i + 1)
                     last_char = i - 1
                 combo = i

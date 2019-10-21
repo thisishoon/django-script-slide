@@ -85,8 +85,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if CHANNEL_LAYERS.get("mobile" + self.room_group_name) == None:
                     self.user_category = 'mobile'
                     self.buffer = ""
-                    self.mutex = 0
                     self.time = 0
+                    self.similarity = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -119,6 +119,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             elif 'web' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
 
                 self.user_category = 'web'
+                self.buffer = ""
+                self.time = 0
+                self.similarity = 0
                 num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
                 if num_web is None:
                     CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, 1)
