@@ -5,7 +5,6 @@ from allauth.account.utils import setup_user_email
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_auth.serializers import UserDetailsSerializer
-from .models import Profile
 
 
 class RegisterSerializer(serializers.Serializer):
