@@ -174,15 +174,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # sentence
         elif 'sentence' in text_data_json['message']['event']:
 
-            CHANNEL_LAYERS.__setitem__("current_sentence" + self.room_group_name, text_data_json['message']['value']['current_sentence'])
+            CHANNEL_LAYERS.__setitem__("current_sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_current_sentence = self.hangul.sub('', text_data_json['message']['value']['current_sentence'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
-            CHANNEL_LAYERS.__setitem__("current_index" + self.room_group_name,
-                                       text_data_json['message']['value']['current_index'])
+            CHANNEL_LAYERS.__setitem__("index" + self.room_group_name,
+                                       text_data_json['message']['index'])
             CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
-                                       text_data_json['message']['value']['next_sentence'])
-            CHANNEL_LAYERS.__setitem__("next_index" + self.room_group_name,
-                                       text_data_json['message']['value']['next_index'])
+                                       text_data_json['message']['value2'])
+            CHANNEL_LAYERS.__setitem__("index2" + self.room_group_name,
+                                       text_data_json['message']['index2'])
             return
 
         # speech control
