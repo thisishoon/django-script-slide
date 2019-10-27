@@ -174,9 +174,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # sentence
         elif 'sentence' in text_data_json['message']['event']:
 
-            CHANNEL_LAYERS.__setitem__("sentence" + self.room_group_name, text_data_json['message']['value'])
-            parse_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
-            CHANNEL_LAYERS.__setitem__("parse_sentence" + self.room_group_name, parse_sentence)
+            CHANNEL_LAYERS.__setitem__("current_sentence" + self.room_group_name, text_data_json['message']['value']['current_sentence'])
+            parse_current_sentence = self.hangul.sub('', text_data_json['message']['value']['current_sentence'])  # 정규표현식으로 추출
+            CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
+            CHANNEL_LAYERS.__setitem__("current_index" + self.room_group_name,
+                                       text_data_json['message']['value']['current_index'])
+            CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
+                                       text_data_json['message']['value']['next_sentence'])
+            CHANNEL_LAYERS.__setitem__("next_index" + self.room_group_name,
+                                       text_data_json['message']['value']['next_index'])
             return
 
         # speech control
@@ -187,8 +193,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             else:
                 self.time = time.time()
 
-            current_parse_sentence = CHANNEL_LAYERS.get("parse_sentence" + self.room_group_name)
-            current_sentence = CHANNEL_LAYERS.get("sentence" + self.room_group_name)
+            current_parse_sentence = CHANNEL_LAYERS.get("parse_current_sentence" + self.room_group_name)
+            current_sentence = CHANNEL_LAYERS.get("current_sentence" + self.room_group_name)
             if current_parse_sentence=='':
                 print("blank")
                 return
@@ -212,7 +218,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     {
                         'type': 'speech_message',
                         'message': {'event': "speech", "user_category": "server", "value": 1,
-                                    "similarity": similarity, "point": point},
+                                    "similarity": similarity, "point": point,
+                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name)},
                         'sender_channel_name': self.channel_name
                     }
                 )
