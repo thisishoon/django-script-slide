@@ -198,16 +198,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(current_parse_sentence)
             print(total_text)
 
-            if len(total_text) < len(current_parse_sentence) * 0.7:
-                print("pass")
-                return
-
-            elif len(total_text) > len(current_parse_sentence) * 1.3:
+            if len(total_text) > len(current_parse_sentence) * 1.3:
                 total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
 
             similarity, point = LCS(current_sentence, current_parse_sentence, total_text)
 
-
+            if (text_data_json['message']['status'] == 'done'):
+                self.buffer += text
             # success
             if similarity > 0.6:
                 await self.channel_layer.group_send(
@@ -233,8 +230,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'sender_channel_name': self.channel_name
                     }
                 )
-                if (text_data_json['message']['status'] == 'done'):
-                    self.buffer += text
+
         return
 
 
