@@ -208,7 +208,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if len(total_text) > len(current_parse_sentence) * 1.3:
                 total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
 
-            similarity, point = LCS(current_sentence, current_parse_sentence, total_text)
+            similarity, start_point, end_point = LCS(current_sentence, current_parse_sentence, total_text)
 
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
@@ -219,7 +219,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     {
                         'type': 'speech_message',
                         'message': {'event': "speech", "user_category": "server", "value": 1,
-                                    "similarity": similarity, "point": point,
+                                    "similarity": similarity, "start_point": start_point, "end_point": end_point,
                                     "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name)},
                         'sender_channel_name': self.channel_name
                     }

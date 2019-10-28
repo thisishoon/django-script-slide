@@ -59,6 +59,8 @@ def edit_distance(origin_sentence, speech_sentence):
 import math
 import pprint
 
+import math
+
 
 def LCS(sentence, parse_sentence, speech_sentence):
     len1 = len(parse_sentence)
@@ -66,6 +68,8 @@ def LCS(sentence, parse_sentence, speech_sentence):
     combo = -1
     start = -1
     end = -1
+    start_point = -1
+    end_point = -1
 
     lcs = [[0 for i in range(len2 + 1)] for j in range(len1 + 1)]
 
@@ -78,7 +82,6 @@ def LCS(sentence, parse_sentence, speech_sentence):
                 lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
                 if i - combo == 1:
                     lcs[i][j] += math.log10(i + 1)
-                    print("combo" + str(i + 1))
                     last_char = i - 1
                 combo = i
             else:
@@ -86,10 +89,22 @@ def LCS(sentence, parse_sentence, speech_sentence):
 
     sum = (math.log2(math.factorial(len1 + 1)) + math.log10(math.factorial(len1 + 1)) - math.log10(2 * 3) - math.log2(
         2))
-
     similarity = lcs[-1][-1] / sum
     print(similarity)
+    k = 0
 
-    return similarity, 0
+    if start != -1 and end != -1:
+        for i in range(start, end + 1):
+            for j in range(k, len(sentence)):
+                if parse_sentence[i] == sentence[j]:
+                    if k == 0:
+                        start_point = j
+                    end_point = j
+                    k = j + 1
+                    break;
+    print(start, end)
+    print(start_point, end_point)
+
+    return similarity, start_point, end_point
 
 
