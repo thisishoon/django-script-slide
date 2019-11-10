@@ -2,6 +2,7 @@
 *~
 __pycache__
 venv/
+venv2/
 db.sqlite3
 dump.rdb
 static/
