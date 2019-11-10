@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<!doctype html>
+<html>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+
+	    <p>
+                {% trans "Please enter the login code that was sent to you." %}
+	    </p>
+
+            {{ form }}
+
+            <button>{% trans "Login" %}</button>
+        </form>
+    </body>
+</html>

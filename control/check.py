@@ -101,7 +101,7 @@ def LCS(sentence, parse_sentence, speech_sentence):
                         start_point = j
                     end_point = j
                     k = j + 1
-                    break;
+                    break
     print(start, end)
     print(start_point, end_point)
 

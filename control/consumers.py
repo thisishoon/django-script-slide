@@ -14,7 +14,6 @@ import re
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-
         self.room_group_name = self.scope['url_route']['kwargs']['speech_script_id']
         # self.speech_script_instance = SpeechScript.objects.get(id=self.room_group_name)
 
@@ -66,7 +65,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # 받는 역할
     async def receive(self, text_data):
-
         text_data_json = json.loads(text_data)  # json형식을 dictionary로 변환
 
         if 'notification' in text_data_json['message']['event']:
@@ -205,22 +203,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(current_parse_sentence)
             print(total_text)
 
-            if len(total_text) > len(current_parse_sentence) * 1.3:
-                total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
+            #if len(total_text) > len(current_parse_sentence) * 1.3:
+            #    total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
 
             similarity, start_point, end_point = LCS(current_sentence, current_parse_sentence, total_text)
 
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
             # success
-            if similarity > 0.6:
+            if similarity > 0.65:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'speech_message',
                         'message': {'event': "speech", "user_category": "server", "value": 1,
                                     "similarity": similarity, "start_point": start_point, "end_point": end_point,
-                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name)},
+                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                    "current_sentence": current_sentence, "speech": total_text},
                         'sender_channel_name': self.channel_name
                     }
                 )
@@ -234,7 +233,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     {
                         'type': 'speech_message',
                         'message': {'event': "speech", "user_category": "server", "value": 0,
-                                    "similarity": similarity, "point": point},
+                                    "similarity": similarity, "start_point": start_point, "end_point": end_point,
+                                    "current_sentence": current_sentence, "speech": total_text},
                         'sender_channel_name': self.channel_name
                     }
                 )

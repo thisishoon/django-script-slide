@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: codes
+Version: 0.1.0
+Summary: useful codes
+Home-page: https://github.com/StevenLianaL/codes
+Author: Steven Wang
+Author-email: wangzhou8284@outlook.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Description-Content-Type: text/markdown
+
+# decorator
+- get_runtime   获取函数运行时间的装饰器
+# daily
+- insert_space  在汉字与字母间插入空格
+

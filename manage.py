@@ -2,6 +2,8 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from signal import signal, SIGINT, SIGTERM, SIGQUIT
+import signal
 
 
 def main():
@@ -19,3 +21,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

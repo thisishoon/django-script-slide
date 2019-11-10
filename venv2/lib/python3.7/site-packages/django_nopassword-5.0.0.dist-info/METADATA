@@ -1,0 +1,24 @@
+Metadata-Version: 2.1
+Name: django-nopassword
+Version: 5.0.0
+Summary: Authentication backend for django that uses a one time code instead of passwords
+Home-page: http://github.com/relekang/django-nopassword
+Author: Rolf Erik Lekang
+Author-email: me@rolflekang.com
+License: MIT
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: Django
+Classifier: Environment :: Web Environment
+Classifier: Operating System :: OS Independent
+Classifier: Natural Language :: English
+Requires-Dist: django (>=1.11)
+Provides-Extra: rest
+Requires-Dist: djangorestframework (>=3.1.3) ; extra == 'rest'
+
+UNKNOWN
+
+
