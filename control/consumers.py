@@ -182,8 +182,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
             #CHANNEL_LAYERS.__setitem__("index" + self.room_group_name,
             #                           text_data_json['message']['index'])
-            #CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
-            #                           text_data_json['message']['value2'])
+            CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
+                                       text_data_json['message']['value2'])
             #CHANNEL_LAYERS.__setitem__("index2" + self.room_group_name,
             #                           text_data_json['message']['index2'])
             return
@@ -227,14 +227,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
-                    self.last_similarity = similarity
                     self.buffer = ""
+                    self.last_similarity = similarity
                     print("success! execution time : ", time.time()-self.time)
+
                 else:   #두번 이상의 통과
                     if self.last_similarity < similarity:   #계속 증가하는 중 이라면
+                        self.last_similarity = similarity
                         return
+
                     else:                                   #문장의 끝을 확인
                         self.count = 0
+                        self.last_similarity = 0
                         await self.channel_layer.group_send(
                             self.room_group_name,
                             {
@@ -247,6 +251,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                 'sender_channel_name': self.channel_name
                             }
                         )
+                        return
 
 
 
@@ -262,6 +267,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'sender_channel_name': self.channel_name
                     }
                 )
+
 
         return
 
