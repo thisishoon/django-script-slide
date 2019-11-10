@@ -85,6 +85,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.buffer = ""
                     self.time = 0
                     self.similarity = 0
+                    self.last_similarity = 0
+                    self.count = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -120,6 +122,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.buffer = ""
                 self.time = 0
                 self.similarity = 0
+                self.last_similarity = 0
+                self.count = 0
+
                 num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
                 if num_web is None:
                     CHANNEL_LAYERS.__setitem__("web"+self.room_group_name, 1)
@@ -203,28 +208,47 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(current_parse_sentence)
             print(total_text)
 
-            #if len(total_text) > len(current_parse_sentence) * 1.3:
-            #    total_text = total_text[-int((len(current_parse_sentence) * 1.2)):]
-
             similarity, start_point, end_point = LCS(current_sentence, current_parse_sentence, total_text)
 
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
             # success
             if similarity > 0.65:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'speech_message',
-                        'message': {'event': "speech", "user_category": "server", "value": 1,
-                                    "similarity": similarity, "start_point": start_point, "end_point": end_point,
-                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
-                                    "current_sentence": current_sentence, "speech": total_text},
-                        'sender_channel_name': self.channel_name
-                    }
-                )
-                self.buffer = ""
-                print("success! execution time : ", time.time()-self.time)
+                self.count += 1
+                if self.count == 1: #첫 통과
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'speech_message',
+                            'message': {'event': "speech", "user_category": "server", "value": 1,
+                                        "similarity": similarity, "start_point": start_point, "end_point": end_point,
+                                        "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "current_sentence": current_sentence, "speech": total_text},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
+                    self.last_similarity = similarity
+                    self.buffer = ""
+                    print("success! execution time : ", time.time()-self.time)
+                else:   #두번 이상의 통과
+                    if self.last_similarity < similarity:   #계속 증가하는 중 이라면
+                        return
+                    else:                                   #문장의 끝을 확인
+                        self.count = 0
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'speech_message',
+                                'message': {'event': "speech", "user_category": "server", "value": 2,
+                                            "similarity": similarity, "start_point": start_point,
+                                            "end_point": end_point,
+                                            "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                            "current_sentence": current_sentence, "speech": total_text},
+                                'sender_channel_name': self.channel_name
+                            }
+                        )
+
+
 
             #fail
             else:
