@@ -204,8 +204,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             next_parse_sentence = CHANNEL_LAYERS.get("parse_next_sentence" + self.room_group_name)
             next_sentence = CHANNEL_LAYERS.get("next_sentence" + self.room_group_name)
 
-            if current_parse_sentence=='':
-                print("blank")
+            if current_parse_sentence=='' or current_parse_sentence == None:
+                logging.error(current_sentence,"is None type!")
                 return
 
 
@@ -219,7 +219,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(total_text)
 
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
-            next_similarity, _, _ = LCS(next_sentence, next_parse_sentence, total_text)
+            next_similarity = 0
+            if next_parse_sentence != '' or next_parse_sentence != None:
+                next_similarity, _, _, _ = LCS(next_sentence, next_parse_sentence, total_text)
 
             # success
             if similarity > 0.6:
@@ -290,6 +292,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
+                    self.buffer = ""
 
                 else:
                     await self.channel_layer.group_send(
@@ -303,6 +306,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
+
 
 
         return
