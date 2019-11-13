@@ -201,23 +201,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             current_parse_sentence = CHANNEL_LAYERS.get("parse_current_sentence" + self.room_group_name)
             current_sentence = CHANNEL_LAYERS.get("current_sentence" + self.room_group_name)
+            next_parse_sentence = CHANNEL_LAYERS.get("parse_next_sentence" + self.room_group_name)
+            next_sentence = CHANNEL_LAYERS.get("next_sentence" + self.room_group_name)
+
             if current_parse_sentence=='':
                 print("blank")
                 return
 
 
             text = self.hangul.sub('', text_data_json['message']['value'])
-
             total_text = self.buffer + text
+
+            if (text_data_json['message']['status'] == 'done'):
+                self.buffer += text
+
             print(current_parse_sentence)
             print(total_text)
 
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
+            next_similarity, _, _ = LCS(next_sentence, next_parse_sentence, total_text)
 
-
-
-            if (text_data_json['message']['status'] == 'done'):
-                self.buffer += text
             # success
             if similarity > 0.6:
                 if cnt < 3:
@@ -275,17 +278,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'speech_message',
-                        'message': {'event': "speech", "user_category": "server", "value": 0,
-                                    "similarity": similarity, "start_point": start_point, "end_point": end_point,
-                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
-                                    "current_sentence": current_sentence, "speech": total_text},
-                        'sender_channel_name': self.channel_name
-                    }
-                )
+                if next_similarity > 0.1 and similarity < next_similarity:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'speech_message',
+                            'message': {'event': "speech", "user_category": "server", "value": 3,
+                                        "similarity": next_similarity,
+                                        "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "current_sentence": current_sentence, "speech": total_text},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
+
+                else:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'speech_message',
+                            'message': {'event': "speech", "user_category": "server", "value": 0,
+                                        "similarity": similarity, "start_point": start_point, "end_point": end_point,
+                                        "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "current_sentence": current_sentence, "speech": total_text},
+                            'sender_channel_name': self.channel_name
+                        }
+                    )
 
 
         return
