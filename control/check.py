@@ -80,11 +80,12 @@ def LCS(sentence, parse_sentence, speech_sentence):
                 if start == -1:
                     start = i - 2
                 if (i - 2) <= len2:
-                    end_list.append(i - 1)
+                    end_list.append(i - 2)
+
                 lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
                 if i - combo == 1:
                     lcs[i][j] += math.log10(i + 1)
-                    last_char = i - 1
+
                 combo = i
             else:
                 lcs[i][j] = max(lcs[i][j - 1], lcs[i - 1][j])
@@ -102,7 +103,6 @@ def LCS(sentence, parse_sentence, speech_sentence):
             break
 
     k = 0
-
     if start != -1 and end != -1:
         for i in range(start, end + 1):
             for j in range(k, len(sentence)):
@@ -115,5 +115,12 @@ def LCS(sentence, parse_sentence, speech_sentence):
     print(start, end)
     print(start_point, end_point)
 
-    return similarity, start_point, end_point
+    cnt = 0
+    for i in sentence[end_point:]:
+        if i == ' ':
+            cnt += 1
+        if (cnt > 3):
+            break
+
+    return similarity, start_point, end_point, cnt
 

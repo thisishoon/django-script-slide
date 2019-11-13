@@ -211,7 +211,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             print(current_parse_sentence)
             print(total_text)
 
-            similarity, start_point, end_point = LCS(current_sentence, current_parse_sentence, total_text)
+            similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
 
 
 
@@ -219,45 +219,57 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.buffer += text
             # success
             if similarity > 0.6:
-                self.count += 1
-                if self.count == 1: #첫 통과
+                if cnt<3:
+                    self.count += 1
+                    if self.count == 1: #첫 통과
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'speech_message',
+                                'message': {'event': "speech", "user_category": "server", "value": 1,
+                                            "similarity": similarity, "start_point": start_point, "end_point": end_point,
+                                            "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                            "current_sentence": current_sentence, "speech": total_text},
+                                'sender_channel_name': self.channel_name
+                            }
+                        )
+                        self.last_similarity = similarity
+                        print("success! execution time : ", time.time()-self.time)
+
+                    else:   #두번 이상의 통과
+                        if self.last_similarity < similarity:   #계속 증가하는 중 이라면
+                            self.last_similarity = similarity
+                            return
+
+                        else:                                   #문장의 끝을 확인
+                            self.count = 0
+                            self.last_similarity = 0
+                            await self.channel_layer.group_send(
+                                self.room_group_name,
+                                {
+                                    'type': 'speech_message',
+                                    'message': {'event': "speech", "user_category": "server", "value": 2,
+                                                "similarity": similarity, "start_point": start_point,
+                                                "end_point": end_point,
+                                                "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                                "current_sentence": current_sentence, "speech": total_text},
+                                    'sender_channel_name': self.channel_name
+                                }
+                            )
+                            self.buffer = ""
+                            return
+                else:
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
                             'type': 'speech_message',
-                            'message': {'event': "speech", "user_category": "server", "value": 1,
+                            'message': {'event': "speech", "user_category": "server", "value": 0,
                                         "similarity": similarity, "start_point": start_point, "end_point": end_point,
                                         "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
                                         "current_sentence": current_sentence, "speech": total_text},
                             'sender_channel_name': self.channel_name
                         }
                     )
-                    self.last_similarity = similarity
-                    print("success! execution time : ", time.time()-self.time)
-
-                else:   #두번 이상의 통과
-                    if self.last_similarity < similarity:   #계속 증가하는 중 이라면
-                        self.last_similarity = similarity
-                        return
-
-                    else:                                   #문장의 끝을 확인
-                        self.count = 0
-                        self.last_similarity = 0
-                        await self.channel_layer.group_send(
-                            self.room_group_name,
-                            {
-                                'type': 'speech_message',
-                                'message': {'event': "speech", "user_category": "server", "value": 2,
-                                            "similarity": similarity, "start_point": start_point,
-                                            "end_point": end_point,
-                                            "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
-                                            "current_sentence": current_sentence, "speech": total_text},
-                                'sender_channel_name': self.channel_name
-                            }
-                        )
-                        self.buffer = ""
-                        return
-
 
 
             #fail
