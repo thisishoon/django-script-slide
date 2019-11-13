@@ -86,6 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.time = 0
                     self.similarity = 0
                     self.last_similarity = 0
+                    self.last_end_point = 0
                     self.count = 0
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
@@ -123,6 +124,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.time = 0
                 self.similarity = 0
                 self.last_similarity = 0
+                self.last_end_point = 0
                 self.count = 0
 
                 num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
@@ -183,6 +185,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("current_index" + self.room_group_name,
                                        text_data_json['message']['index'])
 
+
             CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
                                        text_data_json['message']['value2'])
             parse_next_sentence = self.hangul.sub('', text_data_json['message']['value2'])  # 다음 문장 정규표현식으로 추출
@@ -240,11 +243,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         )
                         self.last_similarity = similarity
+                        self.last_end_point = end_point
                         print("success! execution time : ", time.time()-self.time)
 
                     else:   #두번 이상의 통과
-                        if self.last_similarity < similarity:   #계속 증가하는 중 이라면
+                        if self.last_similarity < similarity or self.last_end_point < end_point:   #계속 증가하는 중 이라면
                             self.last_similarity = similarity
+                            self.last_end_point = end_point
                             return
 
                         else:                                   #문장의 끝을 확인
