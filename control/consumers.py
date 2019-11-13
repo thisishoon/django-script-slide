@@ -193,7 +193,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
-            if time.time() - self.time < 0.5:
+            if time.time() - self.time < 0.01:
                 return
             else:
                 self.time = time.time()
@@ -219,7 +219,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.buffer += text
             # success
             if similarity > 0.6:
-                if cnt<3:
+                if cnt < 3:
                     self.count += 1
                     if self.count == 1: #첫 통과
                         await self.channel_layer.group_send(
@@ -272,7 +272,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     )
 
 
-            #fail
+            #유사도 fail
             else:
                 await self.channel_layer.group_send(
                     self.room_group_name,
@@ -280,6 +280,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         'type': 'speech_message',
                         'message': {'event': "speech", "user_category": "server", "value": 0,
                                     "similarity": similarity, "start_point": start_point, "end_point": end_point,
+                                    "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
                                     "current_sentence": current_sentence, "speech": total_text},
                         'sender_channel_name': self.channel_name
                     }
