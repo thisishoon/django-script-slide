@@ -9,7 +9,7 @@ import json
 import time
 from control.check import *
 import re
-
+import logging
 
 class ChatConsumer(AsyncWebsocketConsumer):
 
@@ -71,7 +71,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if 'mobile' in text_data_json['message']['user_category'] and 'enter' in text_data_json['message']['value']:
 
                 if CHANNEL_LAYERS.get("web"+self.room_group_name) == None:
-                    print("mobile unmatched_fail")
+                    logging.error("mobile unmatched_fail")
                     self.user_category = 'mobile_fail'
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "unmatched_fail"}
@@ -94,7 +94,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 # 강제퇴장
                 elif CHANNEL_LAYERS.get("mobile" + self.room_group_name) == 1:
                     self.user_category = 'mobile_fail'
-                    print("mobile duplicate_fail")
+                    logging.error("mobile duplicate_fail")
 
                     await self.send(text_data=json.dumps({
                         'message': {'event': "notification", "user_category": "mobile", "value": "duplicate_fail"}
@@ -184,6 +184,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             #                           text_data_json['message']['index'])
             CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
                                        text_data_json['message']['value2'])
+            parse_next_sentence = self.hangul.sub('', text_data_json['message']['value2'])  # 다음 문장 정규표현식으로 추출
+            CHANNEL_LAYERS.__setitem__("parse_next_sentence" + self.room_group_name, parse_next_sentence)
             #CHANNEL_LAYERS.__setitem__("index2" + self.room_group_name,
             #                           text_data_json['message']['index2'])
             return
@@ -204,16 +206,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
             text = self.hangul.sub('', text_data_json['message']['value'])
+
             total_text = self.buffer + text
             print(current_parse_sentence)
             print(total_text)
 
             similarity, start_point, end_point = LCS(current_sentence, current_parse_sentence, total_text)
 
+
+
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
             # success
-            if similarity > 0.65:
+            if similarity > 0.6:
                 self.count += 1
                 if self.count == 1: #첫 통과
                     await self.channel_layer.group_send(
@@ -227,7 +232,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
-                    self.buffer = ""
                     self.last_similarity = similarity
                     print("success! execution time : ", time.time()-self.time)
 
@@ -251,6 +255,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                 'sender_channel_name': self.channel_name
                             }
                         )
+                        self.buffer = ""
                         return
 
 
