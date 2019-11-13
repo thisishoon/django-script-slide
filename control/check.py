@@ -80,7 +80,7 @@ def LCS(sentence, parse_sentence, speech_sentence):
                 if start == -1:
                     start = i - 2
                 if (i - 2) <= len2:
-                    end_list.append(i - 2)
+                    end_list.append(i - 1)
 
                 lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
                 if i - combo == 1:
@@ -97,6 +97,8 @@ def LCS(sentence, parse_sentence, speech_sentence):
     end_max = (len1 * similarity) * 10 / 6
     end_list.sort(reverse=True)
 
+    if end_max < 5:
+        end_max = 5
     for i in end_list:
         if i <= end_max:
             end = i
