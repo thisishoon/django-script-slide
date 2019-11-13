@@ -184,6 +184,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
             CHANNEL_LAYERS.__setitem__("current_index" + self.room_group_name,
                                        text_data_json['message']['index'])
+            CHANNEL_LAYERS.__setitem__("current_sub_index" + self.room_group_name,
+                                       text_data_json['message']['sub_index'])
 
 
             CHANNEL_LAYERS.__setitem__("next_sentence" + self.room_group_name,
@@ -192,6 +194,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             CHANNEL_LAYERS.__setitem__("parse_next_sentence" + self.room_group_name, parse_next_sentence)
             CHANNEL_LAYERS.__setitem__("next_index" + self.room_group_name,
                                        text_data_json['message']['index2'])
+            #CHANNEL_LAYERS.__setitem__("next_sub_index" + self.room_group_name,
+            #                           text_data_json['message']['sub_index2'])
+
             return
 
         # speech control
@@ -238,6 +243,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                 'message': {'event': "speech", "user_category": "server", "value": 1,
                                             "similarity": similarity, "start_point": start_point, "end_point": end_point,
                                             "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                            "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
                                             "current_sentence": current_sentence, "speech": total_text},
                                 'sender_channel_name': self.channel_name
                             }
@@ -247,7 +253,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         print("success! execution time : ", time.time()-self.time)
 
                     else:   #두번 이상의 통과
-                        if self.last_similarity < similarity or self.last_end_point < end_point:   #계속 증가하는 중 이라면
+                        if self.last_end_point < end_point:   #계속 증가하는 중 이라면
                             self.last_similarity = similarity
                             self.last_end_point = end_point
                             return
@@ -263,6 +269,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                                 "similarity": similarity, "start_point": start_point,
                                                 "end_point": end_point,
                                                 "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                                "sub_index": CHANNEL_LAYERS.get(
+                                                    "current_sub_index" + self.room_group_name),
                                                 "current_sentence": current_sentence, "speech": total_text},
                                     'sender_channel_name': self.channel_name
                                 }
@@ -277,6 +285,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'message': {'event': "speech", "user_category": "server", "value": 0,
                                         "similarity": similarity, "start_point": start_point, "end_point": end_point,
                                         "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
                                         "current_sentence": current_sentence, "speech": total_text},
                             'sender_channel_name': self.channel_name
                         }
@@ -285,6 +294,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
+                if self.count==1:
+                    return
+
                 if next_similarity > 0.1 and similarity < next_similarity:
                     await self.channel_layer.group_send(
                         self.room_group_name,
@@ -293,6 +305,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'message': {'event': "speech", "user_category": "server", "value": 3,
                                         "similarity": next_similarity,
                                         "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
                                         "current_sentence": current_sentence, "speech": total_text},
                             'sender_channel_name': self.channel_name
                         }
@@ -307,6 +320,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'message': {'event': "speech", "user_category": "server", "value": 0,
                                         "similarity": similarity, "start_point": start_point, "end_point": end_point,
                                         "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                        "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
                                         "current_sentence": current_sentence, "speech": total_text},
                             'sender_channel_name': self.channel_name
                         }
