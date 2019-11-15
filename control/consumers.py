@@ -301,7 +301,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if self.count == 1:
                     return
 
-                if next_similarity > 0.1 and similarity < next_similarity:
+                if (next_similarity > 0.1 and similarity < next_similarity) or (next_similarity>0.1 and similarity > 0.5):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
