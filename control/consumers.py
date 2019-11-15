@@ -289,6 +289,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             self.buffer = ""
                             return
                 else:
+                    if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (
+                            next_similarity > 0.5 and similarity > 0.51):
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'speech_message',
+                                'message': {'event': "speech", "user_category": "server", "value": 3,
+                                            "similarity": next_similarity,
+                                            "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
+                                            "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
+                                            "current_sentence": current_sentence, "speech": total_text,
+                                            "next_sentence": next_n_parse_sentence, "next_similarity": next_similarity},
+                                'sender_channel_name': self.channel_name
+                            }
+                        )
+                        self.buffer = ""
+
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -305,11 +322,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
-                if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.4 and similarity > 0.5):
-                    if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)):
-                        print("!!!!!!!!!!")
-                    else:
-                        print("@@@@@@@@@@@")
+                if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.5 and similarity > 0.51):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
