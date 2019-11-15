@@ -306,6 +306,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             #유사도 fail
             else:
                 if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.4 and similarity > 0.5):
+                    if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)):
+                        print("!!!!!!!!!!")
+                    else:
+                        print("@@@@@@@@@@@")
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
