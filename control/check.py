@@ -93,7 +93,7 @@ def LCS(sentence, parse_sentence, speech_sentence):
     sum = (math.log2(math.factorial(len1 + 1)) + math.log10(math.factorial(len1 + 1)) - math.log10(2 * 3) - math.log2(
         2))
     similarity = lcs[-1][-1] / sum
-    print(similarity)
+    #print(similarity)
     end_max = (len1 * similarity) * 10 / 6
     end_list.sort(reverse=True)
 
@@ -114,8 +114,8 @@ def LCS(sentence, parse_sentence, speech_sentence):
                     end_point = j
                     k = j + 1
                     break
-    print(start, end)
-    print(start_point, end_point)
+    #print(start, end)
+    #print(start_point, end_point)
 
     cnt = 0
     for i in sentence[end_point:]:

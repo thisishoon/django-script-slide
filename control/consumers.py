@@ -225,19 +225,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text = self.hangul.sub('', text_data_json['message']['value'])
             total_text = self.buffer + text
 
-
-
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
 
-            print(current_parse_sentence)
-            print(total_text)
 
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
             next_similarity = 0
             if next_parse_sentence != '' or next_parse_sentence != None:
                 next_n_sentence, next_n_parse_sentence = split_word(next_sentence, 4)
                 next_similarity, next_start_point, next_end_point, _ = LCS(next_n_sentence, next_n_parse_sentence, total_text)
+
+            print("현재문장",similarity, current_parse_sentence)
+            print("다음문장",next_similarity, next_n_parse_sentence)
+            print(total_text)
+
+
 
 
             # success
