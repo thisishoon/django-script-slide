@@ -93,7 +93,6 @@ def LCS(sentence, parse_sentence, speech_sentence):
     sum = (math.log2(math.factorial(len1 + 1)) + math.log10(math.factorial(len1 + 1)) - math.log10(2 * 3) - math.log2(
         2))
     similarity = lcs[-1][-1] / sum
-    #print(similarity)
     end_max = (len1 * similarity) * 10 / 6
     end_list.sort(reverse=True)
 
@@ -132,6 +131,8 @@ def split_word(sentence, n):
     split_sentence = sentence.split()
     n_sentence = ""
     n_parse_sentence = ""
+    if len(split_sentence) < n:
+        n = len(split_sentence)
     for i in range(0,n):
         n_parse_sentence+=split_sentence[i]
         n_sentence+= split_sentence[i]+" "
