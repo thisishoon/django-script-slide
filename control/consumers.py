@@ -305,10 +305,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
-                if self.count == 1:
-                    return
-
-                if (next_similarity > 0.3 and similarity < 0.7 * next_similarity) or (next_similarity > 0.3 and similarity > 0.5):
+                if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.4 and similarity > 0.5):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -317,7 +314,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                         "similarity": next_similarity,
                                         "index": CHANNEL_LAYERS.get("current_index" + self.room_group_name),
                                         "sub_index": CHANNEL_LAYERS.get("current_sub_index" + self.room_group_name),
-                                        "current_sentence": current_sentence, "speech": total_text},
+                                        "current_sentence": current_sentence, "speech": total_text,
+                                        "next_sentence": next_n_parse_sentence, "next_similarity": next_similarity},
                             'sender_channel_name': self.channel_name
                         }
                     )
