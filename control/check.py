@@ -126,3 +126,13 @@ def LCS(sentence, parse_sentence, speech_sentence):
 
     return similarity, start_point, end_point, cnt
 
+
+
+def split_word(sentence, n):
+    split_sentence = sentence.split()
+    n_sentence = ""
+    n_parse_sentence = ""
+    for i in range(0,n):
+        n_parse_sentence+=split_sentence[i]
+        n_sentence+= split_sentence[i]+" "
+    return n_sentence, n_parse_sentence

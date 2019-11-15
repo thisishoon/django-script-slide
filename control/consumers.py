@@ -88,6 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.last_similarity = 0
                     self.last_end_point = 0
                     self.count = 0
+                    self.hangul = re.compile('[^가-힣a-zA-Z0-9]+')
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -178,7 +179,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # sentence
         elif 'sentence' in text_data_json['message']['event']:
-
+            self.buffer = ""
             CHANNEL_LAYERS.__setitem__("current_sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_current_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
@@ -214,6 +215,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             next_parse_sentence = CHANNEL_LAYERS.get("parse_next_sentence" + self.room_group_name)
             next_sentence = CHANNEL_LAYERS.get("next_sentence" + self.room_group_name)
 
+
+
             if current_parse_sentence=='' or current_parse_sentence == None:
                 logging.error(current_sentence,"is None type!")
                 return
@@ -233,7 +236,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
             next_similarity = 0
             if next_parse_sentence != '' or next_parse_sentence != None:
-                next_similarity, next_start_point, next_end_point, _ = LCS(next_sentence, next_parse_sentence, total_text)
+                next_n_sentence, next_n_parse_sentence = split_word(next_sentence, 4)
+                next_similarity, next_start_point, next_end_point, _ = LCS(next_n_sentence, next_n_parse_sentence, total_text)
+
 
             # success
             if similarity > 0.6:
@@ -301,7 +306,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if self.count == 1:
                     return
 
-                if (next_similarity > 0.1 and similarity < next_similarity) or (next_similarity>0.1 and similarity > 0.5):
+                if (next_similarity > 0.3 and similarity < 0.7 * next_similarity) or (next_similarity > 0.3 and similarity > 0.5):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -329,8 +334,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
-
-
 
         return
 
