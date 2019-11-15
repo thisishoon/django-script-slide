@@ -204,9 +204,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif 'speech' in text_data_json['message']['event']:
             if time.time() - self.time < 0.01:
                 return
-            else:
-                self.time = time.time()
+            elif time.time() - self.time > 5:
+                self.buffer = ""
 
+
+            self.time = time.time()
             current_parse_sentence = CHANNEL_LAYERS.get("parse_current_sentence" + self.room_group_name)
             current_sentence = CHANNEL_LAYERS.get("current_sentence" + self.room_group_name)
             next_parse_sentence = CHANNEL_LAYERS.get("parse_next_sentence" + self.room_group_name)
@@ -219,6 +221,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             text = self.hangul.sub('', text_data_json['message']['value'])
             total_text = self.buffer + text
+
+
 
             if (text_data_json['message']['status'] == 'done'):
                 self.buffer += text
@@ -294,7 +298,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
-                if self.count==1:
+                if self.count == 1:
                     return
 
                 if next_similarity > 0.1 and similarity < next_similarity:
