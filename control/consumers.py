@@ -229,7 +229,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
             next_similarity = 0
             if next_parse_sentence != '' or next_parse_sentence != None:
-                next_similarity, _, _, _ = LCS(next_sentence, next_parse_sentence, total_text)
+                next_similarity, next_start_point, next_end_point, _ = LCS(next_sentence, next_parse_sentence, total_text)
 
             # success
             if similarity > 0.6:
