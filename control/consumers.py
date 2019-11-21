@@ -205,6 +205,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
         elif 'speech' in text_data_json['message']['event']:
+
+            log = 0
+
             if time.time() - self.time < 0.01:
                 return
             elif time.time() - self.time > 5:
@@ -246,9 +249,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # success
             if similarity > 0.6:
+                print("1")
                 if cnt < 3:
+                    print("2")
                     self.count += 1
                     if self.count == 1: #첫 통과
+                        print("3")
                         await self.channel_layer.group_send(
                             self.room_group_name,
                             {
@@ -270,7 +276,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                     else:   #두번 이상의 통
+                        print("4")
                         if(self.success_len < len(total_text) and self.last_similarity <= similarity):      #문장의 끝을 확인
+                            print("5")
                             self.count = 0
                             self.last_similarity = 0
                             await self.channel_layer.group_send(
@@ -289,10 +297,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             )
                             self.buffer = ""
                             return
+                        else:
+                            print("6")
+                            print("문장진행중")
 
                 else:
                     if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (
                             next_similarity > 0.5 and similarity > 0.51):
+                        print("7")
                         await self.channel_layer.group_send(
                             self.room_group_name,
                             {
@@ -307,7 +319,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         )
                         self.buffer = ""
-
+                    print("8")
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -324,7 +336,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
+                print("9")
                 if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.4 and similarity > 0.51):
+                    print("10")
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -341,6 +355,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.buffer = ""
 
                 else:
+                    print("11")
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {
@@ -353,7 +368,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'sender_channel_name': self.channel_name
                         }
                     )
-
+        print("12")
         return
 
 
