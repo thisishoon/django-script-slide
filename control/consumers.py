@@ -88,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.last_similarity = 0
                     self.last_end_point = 0
                     self.count = 0
-                    self.hangul = re.compile('[^가-힣a-zA-Z0-9]+')
+                    self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff]+')
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -322,7 +322,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             #유사도 fail
             else:
-                if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.5 and similarity > 0.51):
+                if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (next_similarity > 0.4 and similarity > 0.51):
                     await self.channel_layer.group_send(
                         self.room_group_name,
                         {

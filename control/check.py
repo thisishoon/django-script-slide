@@ -51,8 +51,6 @@ def edit_distance(origin_sentence, speech_sentence):
 
     cost = arr[len1 - 1][len2 - 1]
 
-    # for k in range(len1):
-    #   print(arr[k])
     return cost
 
 
