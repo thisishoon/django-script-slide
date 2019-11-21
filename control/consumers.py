@@ -199,6 +199,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                        text_data_json['message']['index2'])
             #CHANNEL_LAYERS.__setitem__("next_sub_index" + self.room_group_name,
             #                           text_data_json['message']['sub_index2'])
+            CHANNEL_LAYERS.__setitem__("count" + self.room_group_name, 0)
 
             return
 
@@ -208,7 +209,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             log = 0
 
-            if time.time() - self.time < 0.01:
+            if time.time() - self.time < 0.05:
                 return
             elif time.time() - self.time > 5:
                 self.buffer = ""
@@ -249,12 +250,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # success
             if similarity > 0.6:
-                print("1")
                 if cnt < 3:
-                    print("2")
                     self.count += 1
-                    if self.count == 1: #첫 통과
-                        print("3")
+                    count = CHANNEL_LAYERS.get("count" + self.room_group_name)
+                    CHANNEL_LAYERS.__setitem__("count" + self.room_group_name, count + 1)
+
+                    if count == 0: #첫 통과
                         await self.channel_layer.group_send(
                             self.room_group_name,
                             {
@@ -279,8 +280,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         print("4")
                         if(self.success_len < len(total_text) and self.last_similarity <= similarity):      #문장의 끝을 확인
                             print("5")
-                            self.count = 0
+                            CHANNEL_LAYERS.__setitem__("count" + self.room_group_name, 0)
                             self.last_similarity = 0
+                            self.success_len = 0
                             await self.channel_layer.group_send(
                                 self.room_group_name,
                                 {
