@@ -126,6 +126,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.similarity = 0
                 self.last_similarity = 0
                 self.last_end_point = 0
+                self.first_end_point = 0
                 self.count = 0
 
                 num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
@@ -138,7 +139,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
-                self.hangul = re.compile('[^가-힣a-zA-Z0-9]+')
+                self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff]+')
 
 
 
@@ -260,13 +261,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             }
                         )
                         self.last_similarity = similarity
-                        self.last_end_point = end_point
+                        self.first_end_point = end_point
+
                         print("success! execution time : ", time.time()-self.time)
 
-                    else:   #두번 이상의 통과
-                        if self.last_end_point < end_point:   #계속 증가하는 중 이라면
-                            self.last_similarity = similarity
-                            self.last_end_point = end_point
+                    elif self.count % 3 != 0:
+                        self.last_end_point = max(self.first_end_point, end_point)
+
+                    elif self.count % 3 == 0 :   #두번 이상의 통과
+                        if self.first_end_point < self.last_end_point:   #계속 증가하는 중 이였면
                             return
 
                         else:                                   #문장의 끝을 확인
@@ -288,6 +291,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             )
                             self.buffer = ""
                             return
+
                 else:
                     if (next_similarity > 0.4 and similarity < (0.4 * next_similarity)) or (
                             next_similarity > 0.5 and similarity > 0.51):
