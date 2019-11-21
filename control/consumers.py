@@ -85,8 +85,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.buffer = ""
                     self.time = 0
                     self.similarity = 0
-                    self.last_similarity = 0
+                    self.similarity = 0
                     self.last_end_point = 0
+                    self.success_len = 0
                     self.count = 0
                     self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff]+')
                     print("mobile enter")
@@ -262,17 +263,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         )
                         self.last_similarity = similarity
                         self.first_end_point = end_point
+                        self.success_len = len(total_text)
 
                         print("success! execution time : ", time.time()-self.time)
 
-                    elif self.count % 3 != 0:
-                        self.last_end_point = max(self.first_end_point, end_point)
 
-                    elif self.count % 3 == 0 :   #두번 이상의 통과
-                        if self.first_end_point < self.last_end_point:   #계속 증가하는 중 이였면
-                            return
 
-                        else:                                   #문장의 끝을 확인
+                    else:   #두번 이상의 통
+                        if(self.success_len < len(total_text) and self.last_similarity <= similarity):      #문장의 끝을 확인
                             self.count = 0
                             self.last_similarity = 0
                             await self.channel_layer.group_send(
