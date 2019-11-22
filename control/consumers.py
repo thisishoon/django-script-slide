@@ -191,6 +191,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             parse_next_sentence = self.hangul.sub('', text_data_json['message']['value2'])  # 다음 문장 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_next_sentence" + self.room_group_name, parse_next_sentence)
 
+            CHANNEL_LAYERS.__setitem__("count" + self.room_group_name, 0)
+
             if 'index' and 'sub_index' and 'index2' in text_data_json['message']:
                 CHANNEL_LAYERS.__setitem__("current_index" + self.room_group_name,
                                            text_data_json['message']['index'])
@@ -201,8 +203,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                            text_data_json['message']['index2'])
                 #CHANNEL_LAYERS.__setitem__("next_sub_index" + self.room_group_name,
                 #                           text_data_json['message']['sub_index2'])
-                CHANNEL_LAYERS.__setitem__("count" + self.room_group_name, 0)
-                
+
             return
 
         # speech control
