@@ -205,8 +205,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 #CHANNEL_LAYERS.__setitem__("next_sub_index" + self.room_group_name,
                 #                           text_data_json['message']['sub_index2'])
 
-                if self.last_index != text_data_json['message']['index']:
-                    if self.last_sub_index != text_data_json['message']['sub_index']:
+                if (self.last_index != text_data_json['message']['index']) or \
+                        (self.last_index == text_data_json['message']['index'] and
+                         self.last_sub_index != text_data_json['message']['sub_index']):
                         self.buffer = ""
                         self.last_index = text_data_json['message']['index']
                         self.last_sub_index = text_data_json['message']['sub_index']
