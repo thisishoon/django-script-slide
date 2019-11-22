@@ -85,7 +85,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.buffer = ""
                     self.time = 0
                     self.similarity = 0
-                    self.similarity = 0
                     self.last_end_point = 0
                     self.success_len = 0
                     self.count = 0
@@ -129,6 +128,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.last_end_point = 0
                 self.first_end_point = 0
                 self.count = 0
+                self.last_index = 0
+                self.last_sub_index = 0
 
                 num_web = CHANNEL_LAYERS.get("web" + self.room_group_name)
                 if num_web is None:
@@ -181,7 +182,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # sentence
         elif 'sentence' in text_data_json['message']['event']:
-            self.buffer = ""
+
             CHANNEL_LAYERS.__setitem__("current_sentence" + self.room_group_name, text_data_json['message']['value'])
             parse_current_sentence = self.hangul.sub('', text_data_json['message']['value'])  # 정규표현식으로 추출
             CHANNEL_LAYERS.__setitem__("parse_current_sentence" + self.room_group_name, parse_current_sentence)
@@ -204,7 +205,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 #CHANNEL_LAYERS.__setitem__("next_sub_index" + self.room_group_name,
                 #                           text_data_json['message']['sub_index2'])
 
-            return
+                if self.last_index != text_data_json['message']['index']:
+                    if self.last_sub_index != text_data_json['message']['sub_index']:
+                        self.buffer = ""
+                        self.last_index = text_data_json['message']['index']
+                        self.last_sub_index = text_data_json['message']['sub_index']
+                else:
+                    return
+
+
+
+
 
         # speech control
         # mobile에서 speech event를 통한 stt의 결과물인 text receive
@@ -229,8 +240,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             total_text = self.buffer + text
 
             if (text_data_json['message']['status'] == 'done'):
+                print("buffer test")
                 self.buffer += text
-
+                print("buffer", self.buffer)
 
             similarity, start_point, end_point, cnt = LCS(current_sentence, current_parse_sentence, total_text)
             next_similarity = 0
