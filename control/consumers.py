@@ -88,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.last_end_point = 0
                     self.success_len = 0
                     self.count = 0
-                    self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff]+')
+                    self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff\x01-\x7E]+')
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
