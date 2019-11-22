@@ -88,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.last_end_point = 0
                     self.success_len = 0
                     self.count = 0
-                    self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff\x01-\x7E]+')
+                    self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fffぁ-ゔゞァ-・ヽヾ゛゜ー]+')
                     print("mobile enter")
                     CHANNEL_LAYERS.setdefault("mobile" + self.room_group_name, 1)
 
@@ -141,7 +141,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
                 # 계속 한글, 영어, 숫자를 제외한 나머지 모든 문자를 지우기위해 미리 컴파일하여 객체를 반환
-                self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fff]+')
+                self.hangul = re.compile('[^가-힣a-zA-Z0-9\u4e00-\u9fffぁ-ゔゞァ-・ヽヾ゛゜ー]+')
 
 
 
