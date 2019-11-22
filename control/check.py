@@ -73,6 +73,7 @@ def LCS(sentence, parse_sentence, speech_sentence):
     lcs = [[0 for i in range(len2 + 1)] for j in range(len1 + 1)]
 
     for i in range(2, len1 + 1):
+        flag = 0
         for j in range(2, len2 + 1):
             if parse_sentence[i - 2] == speech_sentence[j - 2] and parse_sentence[i - 1] == speech_sentence[j - 1]:
                 if start == -1:
@@ -83,10 +84,11 @@ def LCS(sentence, parse_sentence, speech_sentence):
                 lcs[i][j] = lcs[i - 1][j - 1] + math.log2(i + 1)
                 if i - combo == 1:
                     lcs[i][j] += math.log10(i + 1)
-
-                combo = i
+                flag = 1
             else:
                 lcs[i][j] = max(lcs[i][j - 1], lcs[i - 1][j])
+        if flag == 1:
+            combo = i
 
     sum = (math.log2(math.factorial(len1 + 1)) + math.log10(math.factorial(len1 + 1)) - math.log10(2 * 3) - math.log2(
         2))
