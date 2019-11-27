@@ -4,14 +4,19 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '13.125.157.168',
+    '172.31.25.145',
+    '.scriptslide.net',
     '.scriptslide.com',
     '.amazonaws.com',
 ]
 
+
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'scriptslide-rds.cavrmrh2ww2x.ap-northeast-2.rds.amazonaws.com',
+        'HOST': 'rds-mysql.c4xnvy7goexk.ap-northeast-2.rds.amazonaws.com',
         'PORT': '3306',
         'NAME': 'scriptslide',
         'USER': 'jihoon',
@@ -19,7 +24,7 @@ DATABASES = {
         'CONN_MAX_AGE': None,
     }
 }
-'''
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -28,17 +33,5 @@ CHANNEL_LAYERS = {
         },
         'group_expiry': 60 * 60 * 3,
         'expiry': 60
-    },
-}
-'''
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-        'group_expiry': 60 * 60 * 3,  # 3시간
-        'expiry': 60  # 60초
     },
 }
