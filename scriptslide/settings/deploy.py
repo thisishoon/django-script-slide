@@ -3,8 +3,7 @@ from .base import *
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '172.31.47.251',
-    '172.31.42.185',
+    '13.125.157.168',
     '.scriptslide.com',
     '.amazonaws.com',
 ]
@@ -25,9 +24,9 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('django-redis-001.z4ud64.0001.apn2.cache.amazonaws.com', 6379)],
+            "hosts": [('server-redis-001.8tdxoe.0001.apn2.cache.amazonaws.com', 6379)],
         },
-        'group_expiry': 60 * 60 * 3,  # 3시간
-        'expiry': 60  # 60초
+        'group_expiry': 60 * 60 * 3,
+        'expiry': 60
     },
 }
