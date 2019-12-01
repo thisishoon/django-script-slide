@@ -9,3 +9,4 @@ static/
 .DS_Store
 .idea/
 usertest_log/
+scriptslide/settings/deploy.py
