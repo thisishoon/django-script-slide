@@ -37,6 +37,8 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
 
 urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
@@ -51,4 +53,5 @@ urlpatterns = [
     path('api/rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api/accounts/', include('allauth.urls')),
     path('/', include('django.contrib.auth.urls')),
+    path('sentry-debug/', trigger_error),
 ]
