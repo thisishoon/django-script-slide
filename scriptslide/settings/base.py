@@ -31,7 +31,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = [  #설치 되어야하는 App
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,14 +86,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'scriptslide.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-
-
-# Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -109,22 +101,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
-
 LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'Asia/Seoul'
-
-# USE_I18N = True
-
-# USE_L10N = True
-
-# USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
@@ -136,7 +115,7 @@ REST_FRAMEWORK = {
     ),
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication', #우선순위, jwt를 사용하여 회원가입을 한다.
         'rest_framework.authentication.TokenAuthentication',
         #'rest_framework.authentication.SessionAuthentication',
         #'rest_framework.authentication.BasicAuthentication',
@@ -149,8 +128,8 @@ JWT_AUTH = {
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_ALGORITHM': 'HS256',
     'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),     #유지기간
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),    #만료기
 }
 
 '''
@@ -163,16 +142,16 @@ JWT_REFRESH_EXPIRATION_DELTA: JWT 토큰 갱신의 유효기간 입니다.
 
 REST_USE_JWT = True     #login시 JWT 이용
 
-
 TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 24 * 30 * 12  # 1년
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False  # 우선은 USERNAME으로만 로그인
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True   #email로만 로그인을 하기위한 설정정
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'    #email로만 로그인을 위한 설
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
-SITE_ID = 1  # rest auth 사용 시 DB 위치 명시localhost에서
+SITE_ID = 1  # rest auth 사용 시 DB 위치 명시, localhost를 default로 설정, localhost = scriptslide.com
 
+#회원가입을 위한 smtp 설정
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -180,28 +159,21 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 's@scriptslide.com'
 EMAIL_HOST_PASSWORD = 'qlnagywztwcayled'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-#ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
-LOGIN_REDIRECT_URL = 'https://scriptslide.com/scripts'
+LOGIN_REDIRECT_URL = 'https://scriptslide.com/scripts'  #회원가입을 위한 검증 후 redirect url
 
-#Following is added to enable registration with email instead of username
 AUTHENTICATION_BACKENDS = (
- # Needed to login by username in Django admin, regardless of `allauth`
  "django.contrib.auth.backends.ModelBackend",
-
- # `allauth` specific authentication methods, such as login by e-mail
  "allauth.account.auth_backends.AuthenticationBackend",
 )
-
 ASGI_APPLICATION = 'scriptslide.routing.application'
-
-
 
 REST_AUTH_REGISTER_SERIALIZERS = {
         'REGISTER_SERIALIZER': 'user.serializers.RegisterSerializer',
         'USER_DETAILS_SERIALIZER': 'user.serializers.UserSerializer'
 }
-
+정
+#sentry 에러 트래킹을 위한 설
 sentry_sdk.init(
     dsn="https://cfa7e38ecd084173b6ffdd47b526d647@sentry.io/1541613",
     integrations=[DjangoIntegration()],
