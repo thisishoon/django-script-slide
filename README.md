@@ -41,14 +41,16 @@
 - 나로 인해 수 많은 사람들의 불필요한 암기 시간이 절약될 수 있다고 믿는 사람
 
 ### Develop
+
 - REST API를 위한 DRF 개발, AWS 아키텍쳐 설계, 음성인식 분석 및 실시간 문장 유사도 알고리즘 개발
 - Https, JWT를 사용하여 회원 관리 기능 개발, 웹소켓을 사용하여 실시간 통신, 유사도 계산 함수 비동기 처리, Sentry를 활용하여 에러 트래킹
 - 문장 유사도 알고리즘과 논문을 분석하여 LCS 기반의 자체 알고리즘 개발
--  문장의 bi-gram 인덱스에 기반을 두어 log 함수 그래프 형태의 가중치와 연속 일치에 부가 가중치를 부여
+- 문장의 bi-gram 인덱스에 기반을 두어 log 함수 그래프 형태의 가중치와 연속 일치에 부가 가중치를 부여
 
 
 ### MSA System Architecture
 <img src="https://user-images.githubusercontent.com/49490703/94095678-34d4db00-fe5d-11ea-8dbb-f1a4149d26d1.png"  width="50%">
+
 - 클러스터 환경의 아키텍쳐 설계
 - AWS RDS를 사용하여 DB 서버를 분리
 - 무 중단 배포를 위해 Nginx 웹 서버와 WAS를 분리
